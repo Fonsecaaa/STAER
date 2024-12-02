@@ -96,9 +96,13 @@ def fetch_and_update_aircraft_data():
 
 if __name__ == '__main__':
     with app.app_context():
+
+        db.session.query(Aircraft).delete()
+        db.session.commit()
+
         db.create_all()
 
-    # Agendar a tarefa para rodar a cada 3 segundos
+    # Agendar a tarefa para rodar a cada 2 segundos
     scheduler.add_job(fetch_and_update_aircraft_data, 'interval', seconds=2)
 
     app.run(debug=True)
