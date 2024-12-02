@@ -96,7 +96,6 @@ def fetch_and_update_aircraft_data():
 
 if __name__ == '__main__':
     with app.app_context():
-
         db.session.query(Aircraft).delete()
         db.session.commit()
 
