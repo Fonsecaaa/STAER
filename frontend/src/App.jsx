@@ -7,7 +7,6 @@ import "./App.css";
 
 function App() {
   const [airplanes, setAirplanes] = useState([]);
-  const [filterStatus, setFilterStatus] = useState("");
   const [airplanePaths, setAirplanePaths] = useState({});
 
   // Lista de coordenadas de aeroportos, aeródromos, bases militares
@@ -78,20 +77,14 @@ function App() {
     setAirplanePaths(paths);
   };
 
-  const airplaneIcon = (altitude) => {
-    let color = "gray";
-    if (altitude < 5000) color = "green";
-    else if (altitude < 25000) color = "blue";
-    else color = "red";
-
-    return L.icon({
-      iconUrl: "/airplane-icon.png",
-      iconSize: [30, 30],
-      iconAnchor: [15, 15],
-      popupAnchor: [0, -15],
-      className: `airplane-icon ${color}`,
-    });
-  };
+  const airplaneIcon = () => {
+  return L.icon({
+    iconUrl: "/airplane-icon.png",
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -15],
+  });
+};
 
   const airportIcon = (type) => {
     let iconUrl;
@@ -119,15 +112,6 @@ function App() {
   return (
     <div>
       <h1>STAER</h1>
-
-      <select
-        onChange={(e) => setFilterStatus(e.target.value)}
-        value={filterStatus}
-      >
-        <option value="">Todos os Status</option>
-        <option value="emergency">Emergência</option>
-        <option value="normal">Normal</option>
-      </select>
 
       <MapContainer
         center={[40, 0]}
@@ -198,7 +182,7 @@ function App() {
           </Marker>
         ))}
 
-        {/* Adicionando aeroportos */}
+        {/* aeroportos */}
         {airports.map((airport) => (
           <Marker
             key={airport.name}
@@ -214,16 +198,8 @@ function App() {
           </Marker>
         ))}
 
-        {/* Adicionando aviões */}
+        {/* aviões VER ISTO MELHOR POR CAUSA DAS LINHAS E DOS ICONES TORTOS QUANDO TEM LINHA */}
         {airplanes
-          .filter((airplane) => {
-            if (filterStatus === "emergency") {
-              return airplane.emergency === "emergency";
-            } else if (filterStatus === "normal") {
-              return !airplane.emergency || airplane.emergency === "normal";
-            }
-            return true;
-          })
           .map(
             (airplane) =>
               airplane.lat &&
@@ -232,20 +208,20 @@ function App() {
                   key={airplane.hex}
                   position={[airplane.lat, airplane.lon]}
                   icon={airplaneIcon(airplane.alt_baro)}
-                  rotationAngle={airplane.track || 0} // Aplica a rotação do avião
+                  rotationAngle={airplane.track || 0} //rotação do avião
                   rotationOrigin="center"
                 >
                   <Popup>
                     <strong>Voo:</strong> {airplane.flight || "N/A"}
-                    <br />
+                    <br/>
                     <strong>Hex:</strong> {airplane.hex}
-                    <br />
+                    <br/>
                     <strong>Altitude:</strong> {airplane.alt_baro || "N/A"} ft
-                    <br />
+                    <br/>
                     <strong>Velocidade:</strong> {airplane.gs || "N/A"} nós
-                    <br />
-                    <strong>Status:</strong>{" "}
-                    {airplane.emergency ? "Emergência" : "Normal"}
+                    <br/>
+                    <strong>RSSI:</strong> {airplane.rssi || "N/A"} dBFS
+                    <br/>
                   </Popup>
                 </Marker>
               )
