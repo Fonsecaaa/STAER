@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle } from "react-leaflet"; // Importando o Circle do Leaflet
+import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-rotatedmarker";
 import L from "leaflet";
@@ -12,28 +12,31 @@ function App() {
 
   // Lista de coordenadas de aeroportos, aeródromos, bases militares
   const airports = [
-    { name: "Aeroporto de Lisboa", icao: "LPPT", iata: "LIS", type: "airport", lat: 38.7742, lon: -9.1349 },
-    { name: "Aeroporto do Porto", icao: "LPPR", iata: "OPO", type: "airport", lat: 41.2483, lon: -8.6815 },
-      { name: "Aeroporto de Faro", icao: "LPFR", iata: "FAO", type: "airport", lat: 37.0145, lon: -7.9655 },
-    { name: "Aeródromo de Cascais", icao: "LPCS", iata: "CAT", type: "aerodrome", lat: 38.7333, lon: -9.4167 },
-    { name: "Base Aérea de Monte Real", icao: "LPMR", iata: "LPMR", type: "military", lat: 39.9500, lon: -8.6667 },
-    { name: "Aeródromo de Tires", icao: "LPTS", iata: "TIR", type: "aerodrome", lat: 38.7250, lon: -9.2900 },
-    { name: "Base Aérea de Beja", icao: "LPBJ", iata: "BEJ", type: "military", lat: 38.0167, lon: -7.8650 },
-    { name: "Aeroporto de Ponta Delgada (Açores)", icao: "LPPS", iata: "PDL", type: "airport", lat: 37.7416, lon: -25.6756 },
-    { name: "Aeroporto de Madeira", icao: "LPMA", iata: "FNC", type: "airport", lat: 32.6974, lon: -16.7749 },
-    { name: "Aeroporto de Terceira", icao: "LPLA", iata: "TER", type: "airport", lat: 38.7333, lon: -27.2206 },
-    { name: "Aeroporto de Horta (Açores)", icao: "LPHR", iata: "HOR", type: "airport", lat: 38.5167, lon: -28.7028 },
-    { name: "Aeroporto de Santa Maria (Açores)", icao: "LPSM", iata: "SMA", type: "airport", lat: 36.9701, lon: -25.1705 },
-    { name: "Aeródromo de Alverca", icao: "LPAR", iata: "ALV", type: "aerodrome", lat: 38.9441, lon: -9.0844 },
-    { name: "Aeródromo de Ota", icao: "LPOA", iata: "OTA", type: "aerodrome", lat: 39.0833, lon: -8.9833 },
-    { name: "Aeródromo de Braga", icao: "LPBR", iata: "BGX", type: "aerodrome", lat: 41.5542, lon: -8.4150 },
-    { name: "Aeródromo de Évora", icao: "LPEV", iata: "EVR", type: "aerodrome", lat: 38.5708, lon: -7.9186 },
-    { name: "Aeródromo de Viseu", icao: "LPVZ", iata: "VSE", type: "aerodrome", lat: 40.6667, lon: -7.9167 },
-    { name: "Base Aérea de Sintra", icao: "LPSI", iata: "SNR", type: "military", lat: 38.8000, lon: -9.3833 },
-    { name: "Base Aérea de Montijo", icao: "LPMT", iata: "MTJ", type: "military", lat: 38.6944, lon: -8.9156 },
-    { name: "Base Aérea de Lisboa", icao: "LPMM", iata: "LIS", type: "military", lat: 38.7689, lon: -9.0917 },
-    { name: "Base Aérea de Figo Maduro", icao: "LPFM", iata: "FMO", type: "military", lat: 38.7850, lon: -9.2350 },
-    // Adicione outros aeroportos aqui
+    { name: "Aeroporto de Lisboa", icao: "LPPT", iata: "LIS", type: "airport", lat: 38.7742, lon: -9.1349 },//certo
+    { name: "Aeroporto do Porto", icao: "LPPR", iata: "OPO", type: "airport", lat: 41.2483, lon: -8.6815 },//certo
+      { name: "Aeroporto de Faro", icao: "LPFR", iata: "FAO", type: "airport", lat: 37.0145, lon: -7.9655 },//certo
+    { name: "Aeródromo de Cascais", icao: "LPCS", iata: "CAT", type: "aerodrome", lat: 38.72541, lon: -9.35537 },//corrigido
+    { name: "Base Aérea de Monte Real (Nº5)", icao: "LPMR", iata: "LPMR", type: "military", lat: 39.82915, lon: -8.88871 }, //corrigido
+    { name: "Base Aérea de Beja (Nº11)", icao: "LPBJ", iata: "BYJ", type: "military", lat: 38.07985, lon: -7.92715 },//corrigido
+    { name: "Aeródromo Civil de Beja", icao: "", iata: "BEJ", type: "aerodrome", lat: 38.06082, lon: -7.87784 },//POR CONFIRMAR IATA ICAO
+    { name: "Aeroporto de Ponta Delgada (Açores)", icao: "LPPS", iata: "PDL", type: "airport", lat: 37.74212, lon: -25.69951 },//corrigido
+    { name: "Aeroporto da Madeira", icao: "LPMA", iata: "FNC", type: "airport", lat: 32.6974, lon: -16.7749 },//certo
+    { name: "Aeroporto da Terceira", icao: "LPLA", iata: "TER", type: "airport", lat: 38.76297, lon: -27.09203 },//certo
+    { name: "Base Aérea das Lajes (Nº4)", icao: "LPLA", iata: "TER", type: "military", lat: 38.76297, lon: -27.08503 },//certo
+    { name: "Aeroporto da Horta (Açores)", icao: "LPHR", iata: "HOR", type: "airport", lat: 38.51971, lon: -28.71582 },//CORRIGIDO
+    { name: "Aeroporto de Santa Maria (Açores)", icao: "LPSM", iata: "SMA", type: "airport", lat: 36.97287, lon: -25.17097 },//corrigido
+    { name: "Complexo Militar de Alverca", icao: "LPAR", iata: "❌", type: "military", lat: 38.88375, lon: -9.02973 },//corrigido
+    { name: "Aeroporto da Ilha do Pico", icao: "LPPI", iata: "PIX", type: "airport", lat: 38.55410, lon: -28.44086 },//corrigido
+    { name: "Centro de Formação Militar e Técnica da Força Aérea", icao: "LPOA", iata: "OTA", type: "military", lat: 39.09095, lon: -8.96270 },//corrigido
+    { name: "Aeródromo de Braga", icao: "LPBR", iata: "BGX", type: "aerodrome", lat: 41.58711, lon: -8.44492 },//corrigido
+    { name: "Aeródromo de Évora", icao: "LPEV", iata: "EVR", type: "aerodrome", lat: 38.53251, lon: -7.88971 },//corrigido
+    { name: "Aeródromo de Viseu", icao: "LPVZ", iata: "VSE", type: "aerodrome", lat: 40.72589, lon: -7.88906 },//corrigido
+    { name: "Base Aérea de Sintra (Nº1)", icao: "LPSI", iata: "SNR", type: "military", lat: 38.83282, lon: -9.33877 },//corrigido
+    { name: "Base Aérea de Montijo (Nº6)", icao: "LPMT", iata: "MTJ", type: "military", lat: 38.70851, lon: -9.02587 },//corrigido
+    { name: "Base Aérea de Lisboa", icao: "LPMM", iata: "LIS", type: "military", lat: 38.7689, lon: -9.0917 },//
+    { name: "Aeródromo de Portimão", icao: "LPPM", iata: "PRM", type: "aerodrome", lat: 37.14924, lon: -8.58393 },//corrigido
+    { name: "Aeródromo de Lagos", icao: "LPLG", iata: "❌", type: "aerodrome", lat: 37.12176, lon: -8.67881 },//corrigido
+    { name: "Aeródromo da Maia", icao: "LPVL", iata: "❌", type: "aerodrome", lat: 41.27892, lon: -8.51704 },//corrigido
   ];
 
   // Adicionar localizações de radares em Portugal
@@ -42,7 +45,6 @@ function App() {
     { name: "Radar de A2", lat: 38.6000, lon: -8.0000 },
     { name: "Radar de A3", lat: 41.2000, lon: -8.0000 },
     { name: "Radar de A4", lat: 40.8000, lon: -7.5000 },
-    // Adicione outros radares aqui
   ];
 
   useEffect(() => {
