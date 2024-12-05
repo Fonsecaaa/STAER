@@ -18,14 +18,7 @@ function App() {
     { name: "Base Aérea de Monte Real (Nº5)", icao: "LPMR", iata: "LPMR", type: "military", lat: 39.82915, lon: -8.88871 }, //corrigido
     { name: "Base Aérea de Beja (Nº11)", icao: "LPBJ", iata: "BYJ", type: "military", lat: 38.07985, lon: -7.92715 },//corrigido
     { name: "Aeródromo Civil de Beja", icao: "", iata: "BEJ", type: "aerodrome", lat: 38.06082, lon: -7.87784 },//POR CONFIRMAR IATA ICAO
-    { name: "Aeroporto de Ponta Delgada (Açores)", icao: "LPPS", iata: "PDL", type: "airport", lat: 37.74212, lon: -25.69951 },//corrigido
-    { name: "Aeroporto da Madeira", icao: "LPMA", iata: "FNC", type: "airport", lat: 32.6974, lon: -16.7749 },//certo
-    { name: "Aeroporto da Terceira", icao: "LPLA", iata: "TER", type: "airport", lat: 38.76297, lon: -27.09203 },//certo
-    { name: "Base Aérea das Lajes (Nº4)", icao: "LPLA", iata: "TER", type: "military", lat: 38.76297, lon: -27.08503 },//certo
-    { name: "Aeroporto da Horta (Açores)", icao: "LPHR", iata: "HOR", type: "airport", lat: 38.51971, lon: -28.71582 },//CORRIGIDO
-    { name: "Aeroporto de Santa Maria (Açores)", icao: "LPSM", iata: "SMA", type: "airport", lat: 36.97287, lon: -25.17097 },//corrigido
     { name: "Complexo Militar de Alverca", icao: "LPAR", iata: "❌", type: "military", lat: 38.88375, lon: -9.02973 },//corrigido
-    { name: "Aeroporto da Ilha do Pico", icao: "LPPI", iata: "PIX", type: "airport", lat: 38.55410, lon: -28.44086 },//corrigido
     { name: "Centro de Formação Militar e Técnica da Força Aérea", icao: "LPOA", iata: "OTA", type: "military", lat: 39.09095, lon: -8.96270 },//corrigido
     { name: "Aeródromo de Braga", icao: "LPBR", iata: "BGX", type: "aerodrome", lat: 41.58711, lon: -8.44492 },//corrigido
     { name: "Aeródromo de Évora", icao: "LPEV", iata: "EVR", type: "aerodrome", lat: 38.53251, lon: -7.88971 },//corrigido
@@ -222,6 +215,7 @@ function App() {
                     <br/>
                     <strong>RSSI:</strong> {airplane.rssi || "N/A"} dBFS
                     <br/>
+
                   </Popup>
                 </Marker>
               )
