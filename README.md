@@ -1,12 +1,12 @@
 # Projeto STAER - Visualização e Análise de Dados de Radares Secundários
 
-Este repositório contém o projeto desenvolvido na Unidade Curricular de STAER, que visa a criação de uma aplicação em Python para recolha, tratamento e visualização de dados recolhidos por radares secundários em modo S.
+Este repositório contém o projeto desenvolvido na Unidade Curricular de STAER, que visa a criação de uma aplicação em Python para recolha, tratamento e visualização de dados recolhidos por radares secundários.
 
 ---
 
 ## 📋 Enquadramento
 
-Os radares secundários em modo S permitem recolher informação sobre as aeronaves em voo num dado momento. O tratamento e análise desta informação fornecem uma visão detalhada sobre o estado do espaço aéreo, sendo útil para diversas aplicações como segurança e monitoramento de tráfego aéreo.
+Os radares secundários permitem recolher informação sobre as aeronaves em voo num dado momento. O tratamento e análise desta informação fornecem uma visão detalhada sobre o estado do espaço aéreo, sendo útil para diversas aplicações como segurança e monitoramento de tráfego aéreo.
 
 ---
 
@@ -14,7 +14,7 @@ Os radares secundários em modo S permitem recolher informação sobre as aerona
 
 O objetivo deste projeto é desenvolver um programa que:
 
-1. Recolha dados de aeronaves a partir de radares secundários SSR.
+1. Recolha dados de aeronaves a partir de radares secundários.
 2. Realize o tratamento e armazenamento desses dados.
 3. Visualize a informação recolhida de forma interativa e em tempo real.
 
@@ -22,7 +22,7 @@ O objetivo deste projeto é desenvolver um programa que:
 
 ## 🛠️ Desenvolvimento do Trabalho
 
-### **Fase 1: Recolha e Manutenção da Informação Modo S**
+### **Fase 1: Recolha e Manutenção da Informação**
 
 - **Fonte de Dados:** O software `dump1090` é utilizado para recolher os dados, que estão disponíveis em formato JSON no endpoint `dump1090/aircraft.json`.
 - **Manutenção dos Dados:** Os dados recolhidos serão armazenados numa base de dados local. 
@@ -68,10 +68,3 @@ Com isto iremos ter os dados necessários para a representação dos aviões e c
 
 Depois disto num segundo terminal no **frontend** iremos colocar o comando **npm run dev** que irá abrir uma web page mostrando
 o projeto com os dados a serem atualizados de X em X segundos.
-
-### Instalação
-
-1. Clone este repositório:
-   ```bash
-   git clone https://github.com/username/projeto-staer.git
-   cd projeto-staer
