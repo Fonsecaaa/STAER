@@ -43,6 +43,7 @@ def fetch_and_update_aircraft_data():
                 rssi = safe_float(aircraft_data.get("rssi"))
                 seen = safe_float(aircraft_data.get("seen"))
 
+
                 # Verificar se a aeronave já existe no banco de dados
                 existing_aircraft = Aircraft.query.filter_by(hex_code=aircraft_data.get("hex")).first()
 
@@ -66,10 +67,11 @@ def fetch_and_update_aircraft_data():
                         emergency=aircraft_data.get("emergency"),
                         messages=aircraft_data.get("messages"),
                         seen=seen,
-                        rssi=rssi
+                        rssi=rssi,
                     )
                     db.session.add(new_aircraft)
                 else:
+
                     # Atualizar registro existente
                     existing_aircraft.flight = aircraft_data.get("flight")
                     existing_aircraft.alt_baro = alt_baro
@@ -96,6 +98,7 @@ def fetch_and_update_aircraft_data():
 
 if __name__ == '__main__':
     with app.app_context():
+
         db.session.query(Aircraft).delete()
         db.session.commit()
 
@@ -104,4 +107,4 @@ if __name__ == '__main__':
     # Agendar a tarefa para rodar a cada 2 segundos
     scheduler.add_job(fetch_and_update_aircraft_data, 'interval', seconds=2)
 
-    app.run(debug=True)
+    app.run(debug=True, port=5002)
