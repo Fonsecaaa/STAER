@@ -9,6 +9,7 @@ import "./App.css";
 import React from 'react';
 import styled from 'styled-components';
 import { Loader } from './Loader.jsx';
+import { getCountryByHex } from './icaoCountry.jsx';
 
 const Sidebar = styled.div`
   position: fixed;
@@ -85,9 +86,6 @@ function App() {
   const [airplanes, setAirplanes] = useState([]);
   const [airplanePaths, setAirplanePaths] = useState({});
   const [isLoading, setIsLoading] = useState(true); // Estado para o loader
-  const [showAirplanes, setShowAirplanes] = useState(true); // Filtro para aviões
-  const [showAirports, setShowAirports] = useState(true); // Filtro para aeroportos
-  const [selectedAirportType, setSelectedAirportType] = useState("all"); // Filtro para tipo de aeroporto
   const [sidebarWidth, setSidebarWidth] = useState(300); // Estado para largura do sidebar
 
   useEffect(() => {
@@ -196,11 +194,6 @@ function App() {
     return <Loader />;
   }
 
-  const filteredAirports = airports.filter((airport) => {
-    if (selectedAirportType === "all") return true;
-    return airport.type === selectedAirportType;
-  });
-
   const handleMouseDown = (e) => {
     const startX = e.clientX;
     const startWidth = sidebarWidth;
@@ -226,7 +219,6 @@ function App() {
 
   return (
       <div>
-        <h1>STAER</h1>
 
            <Sidebar width={sidebarWidth}>
       {/* Imagem de redimensionamento */}
@@ -234,72 +226,46 @@ function App() {
 
       <h2>Informações dos Aviões</h2>
       <Table>
-        <thead>
-          <tr>
-            <th>Hex</th>
-            <th>Alt.(ft)</th>
-            <th>Spd.(kt)</th>
-            <th>Coordenadas</th>
-          </tr>
-        </thead>
-        <tbody>
-          {airplanes.map((airplane) => (
-            <tr key={airplane.hex}>
-              <td>{airplane.hex}</td>
-              <td>{airplane.alt_baro || "N/A"}</td>
-              <td>{airplane.gs || "N/A"}</td>
-              <td>
-                {airplane.lat && airplane.lon
-                  ? `Latitude: ${airplane.lat.toFixed(2)}º, Longitude:${airplane.lon.toFixed(2)}º`
-                  : "N/A"}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>Callsign</th>
+      <th>Alt.(ft)</th>
+      <th>Spd.(kt)</th>
+      <th>Coordenadas</th>
+    </tr>
+  </thead>
+  <tbody>
+    {airplanes.map((airplane) => {
+      const { country, flag } = getCountryByHex(airplane.hex);
+      return (
+        <tr key={airplane.hex}>
+          <td>
+            {flag ? <img src={flag} alt={country} style={{ width: "20px", height: "15px" }} /> : "N/A"}
+          </td>
+          <td>{airplane.flight || "N/A"}</td>
+          <td>{airplane.alt_baro || "N/A"}</td>
+          <td>{airplane.gs || "N/A"}</td>
+          <td>
+            {airplane.lat && airplane.lon
+              ? `Latitude: ${airplane.lat.toFixed(2)}º, Longitude: ${airplane.lon.toFixed(2)}º`
+              : "N/A"}
+          </td>
+        </tr>
+      );
+    })}
+  </tbody>
+</Table>
     </Sidebar>
-
-        <div>
-          <label>
-            <input
-                type="checkbox"
-                checked={showAirplanes}
-                onChange={(e) => setShowAirplanes(e.target.checked)}
-            />
-            Mostrar Aviões
-          </label>
-
-          <label>
-            <input
-                type="checkbox"
-                checked={showAirports}
-                onChange={(e) => setShowAirports(e.target.checked)}
-            />
-            Mostrar Aeroportos
-          </label>
-
-          <label>
-            Filtrar Aeroportos:
-            <select
-                value={selectedAirportType}
-                onChange={(e) => setSelectedAirportType(e.target.value)}
-            >
-              <option value="all">Todos</option>
-              <option value="airport">Aeroportos</option>
-              <option value="aerodrome">Aeródromos</option>
-              <option value="military">Bases Militares</option>
-            </select>
-          </label>
-        </div>
 
         <MapContainer
             center={[40, -5]}
             zoom={6}
             style={{height: "100vh", width: "100vw"}}
+            zoomControl={false}
         >
           <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
 
           {/* Adicionando a antena com popup */}

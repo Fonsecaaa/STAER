@@ -1,4 +1,5 @@
 from config import db
+from datetime import datetime
 
 class Aircraft(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -20,6 +21,7 @@ class Aircraft(db.Model):
     messages = db.Column(db.Integer, nullable=True)  # Contagem de mensagens
     seen = db.Column(db.Float, nullable=True)  # Tempo desde a última atualização
     rssi = db.Column(db.Float, nullable=True)  # Intensidade do sinal
+    seen_pos = db.Column(db.Float, nullable=True)  # Tempo desde a última posição
 
     def to_json(self):
         return {
@@ -42,4 +44,5 @@ class Aircraft(db.Model):
             "messages": self.messages,
             "seen": self.seen,
             "rssi": self.rssi,
+            "seen_pos": self.seen_pos,  # Incluindo o campo seen_pos
         }

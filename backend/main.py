@@ -2,12 +2,35 @@ import requests
 from config import app, db, scheduler
 from models import Aircraft
 from flask import jsonify
+from datetime import datetime, timedelta
+
 
 @app.route('/api/aircrafts', methods=['GET'])
 def get_aircrafts():
     with app.app_context():
         aircrafts = Aircraft.query.all()
         return jsonify({"airplanes": [aircraft.to_json() for aircraft in aircrafts]})
+
+# Função para remover aviões inativos que não têm código hex e flight
+def remove_inactive_aircrafts():
+    X = 5  # O limite de tempo (em segundos)
+    now = datetime.now()  # Hora atual
+
+    with app.app_context():
+        # Encontre aviões com status 'N/A', inativos por mais de X segundos e sem código hex ou flight
+        inactive_aircrafts = Aircraft.query.filter(
+            Aircraft.seen == 'N/A',  # Filtra aviões com status 'N/A'
+            Aircraft.seen_pos < (now - timedelta(seconds=X)).timestamp(),  # Inativos por mais de X segundos
+            (Aircraft.hex_code == 'N/A') | (Aircraft.hex_code == ''),  # Sem código hex
+            (Aircraft.flight == 'N/A') | (Aircraft.flight == '')  # Sem número de voo (flight)
+        ).all()
+
+        # Remover os aviões encontrados
+        for aircraft in inactive_aircrafts:
+            db.session.delete(aircraft)
+
+        db.session.commit()
+        print(f"Removidos {len(inactive_aircrafts)} aviões inativos.")
 
 
 def fetch_and_update_aircraft_data():
@@ -42,6 +65,7 @@ def fetch_and_update_aircraft_data():
                 lon = safe_float(aircraft_data.get("lon"))
                 rssi = safe_float(aircraft_data.get("rssi"))
                 seen = safe_float(aircraft_data.get("seen"))
+                seen_pos = safe_float(aircraft_data.get("seen_pos"))
 
 
                 # Verificar se a aeronave já existe no banco de dados
@@ -68,6 +92,7 @@ def fetch_and_update_aircraft_data():
                         messages=aircraft_data.get("messages"),
                         seen=seen,
                         rssi=rssi,
+                        seen_pos=seen_pos
                     )
                     db.session.add(new_aircraft)
                 else:
@@ -90,6 +115,7 @@ def fetch_and_update_aircraft_data():
                     existing_aircraft.messages = aircraft_data.get("messages")
                     existing_aircraft.seen = seen
                     existing_aircraft.rssi = rssi
+                    existing_aircraft.seen_pos = seen_pos  # Atualizar a posição do último visto
 
             db.session.commit()
         print("Dados de aeronaves atualizados com sucesso!")
@@ -98,13 +124,20 @@ def fetch_and_update_aircraft_data():
 
 if __name__ == '__main__':
     with app.app_context():
+        #se apagarem a base de dados e estiver a dar erro façam este comando para criar a DB
+        #db.create_all()
+        #depois de fazer isso uma vez pode-se voltar a meter em comment
 
         db.session.query(Aircraft).delete()
         db.session.commit()
 
+        # Cria todas as tabelas definidas no modelo
         db.create_all()
 
     # Agendar a tarefa para rodar a cada 2 segundos
     scheduler.add_job(fetch_and_update_aircraft_data, 'interval', seconds=2)
+
+    # Agendar a tarefa de limpeza a cada 5 segundos
+    scheduler.add_job(remove_inactive_aircrafts, 'interval', seconds=5)
 
     app.run(debug=True, port=5002)
