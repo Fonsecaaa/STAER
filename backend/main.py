@@ -21,7 +21,7 @@ def remove_inactive_aircrafts():
         inactive_aircrafts = Aircraft.query.filter(
             Aircraft.seen == 'N/A',  # Filtra aviões com status 'N/A'
             Aircraft.seen_pos < (now - timedelta(seconds=X)).timestamp(),  # Inativos por mais de X segundos
-            (Aircraft.hex_code == 'N/A') | (Aircraft.hex_code == ''),  # Sem código hex
+            (Aircraft.hex == 'N/A') | (Aircraft.hex == ''),  # Sem código hex
             (Aircraft.flight == 'N/A') | (Aircraft.flight == '')  # Sem número de voo (flight)
         ).all()
 
@@ -60,21 +60,38 @@ def fetch_and_update_aircraft_data():
                 tas = safe_float(aircraft_data.get("tas"))
                 mach = safe_float(aircraft_data.get("mach"))
                 track = safe_float(aircraft_data.get("track"))
+                track_rate = safe_float(aircraft_data.get("track_rate"))
                 roll = safe_float(aircraft_data.get("roll"))
+                mag_heading = safe_float(aircraft_data.get("mag_heading"))
+                baro_rate = safe_float(aircraft_data.get("baro_rate"))
+                geom_rate = safe_float(aircraft_data.get("geom_rate"))
                 lat = safe_float(aircraft_data.get("lat"))
                 lon = safe_float(aircraft_data.get("lon"))
+                nic = safe_float(aircraft_data.get("nic"))
+                rc = safe_float(aircraft_data.get("rc"))
+                version = safe_float(aircraft_data.get("version"))
+                nic_baro = safe_float(aircraft_data.get("nic_baro"))
+                nac_p = safe_float(aircraft_data.get("nac_p"))
+                nav_qnh = safe_float(aircraft_data.get("nav_qnh"))
+                nav_altitude_mcp = safe_float(aircraft_data.get("nav_altitude_mcp"))
+                nav_v = safe_float(aircraft_data.get("nav_v"))
+                sil = safe_float(aircraft_data.get("sil"))
+                sil_type = aircraft_data.get("sil_type")
+                gva = safe_float(aircraft_data.get("gva"))
+                sda = safe_float(aircraft_data.get("sda"))
+                modea = aircraft_data.get("modea")
+                modec = aircraft_data.get("modec")
                 rssi = safe_float(aircraft_data.get("rssi"))
                 seen = safe_float(aircraft_data.get("seen"))
                 seen_pos = safe_float(aircraft_data.get("seen_pos"))
 
-
                 # Verificar se a aeronave já existe no banco de dados
-                existing_aircraft = Aircraft.query.filter_by(hex_code=aircraft_data.get("hex")).first()
+                existing_aircraft = Aircraft.query.filter_by(hex=aircraft_data.get("hex")).first()
 
                 if existing_aircraft is None:
                     # Inserir nova aeronave
                     new_aircraft = Aircraft(
-                        hex_code=aircraft_data.get("hex"),
+                        hex=aircraft_data.get("hex"),
                         flight=aircraft_data.get("flight"),
                         alt_baro=alt_baro,
                         alt_geom=alt_geom,
@@ -83,12 +100,30 @@ def fetch_and_update_aircraft_data():
                         tas=tas,
                         mach=mach,
                         track=track,
+                        track_rate=track_rate,
                         roll=roll,
+                        mag_heading=mag_heading,
+                        baro_rate=baro_rate,
+                        geom_rate=geom_rate,
                         lat=lat,
                         lon=lon,
                         squawk=aircraft_data.get("squawk"),
                         category=aircraft_data.get("category"),
                         emergency=aircraft_data.get("emergency"),
+                        nav_qnh=nav_qnh,
+                        nav_altitude_mcp=nav_altitude_mcp,
+                        nav_v=nav_v,
+                        nic=nic,
+                        rc=rc,
+                        version=version,
+                        nic_baro=nic_baro,
+                        nac_p=nac_p,
+                        sil=sil,
+                        sil_type=sil_type,
+                        gva=gva,
+                        sda=sda,
+                        modea=modea,
+                        modec=modec,
                         messages=aircraft_data.get("messages"),
                         seen=seen,
                         rssi=rssi,
@@ -106,12 +141,30 @@ def fetch_and_update_aircraft_data():
                     existing_aircraft.tas = tas
                     existing_aircraft.mach = mach
                     existing_aircraft.track = track
+                    existing_aircraft.track_rate = track_rate
                     existing_aircraft.roll = roll
+                    existing_aircraft.mag_heading = mag_heading
+                    existing_aircraft.baro_rate = baro_rate
+                    existing_aircraft.geom_rate = geom_rate
                     existing_aircraft.lat = lat
                     existing_aircraft.lon = lon
                     existing_aircraft.squawk = aircraft_data.get("squawk")
                     existing_aircraft.category = aircraft_data.get("category")
                     existing_aircraft.emergency = aircraft_data.get("emergency")
+                    existing_aircraft.nav_qnh = nav_qnh
+                    existing_aircraft.nav_altitude_mcp = nav_altitude_mcp
+                    existing_aircraft.nav_v = nav_v
+                    existing_aircraft.nic = nic
+                    existing_aircraft.rc = rc
+                    existing_aircraft.version = version
+                    existing_aircraft.nic_baro = nic_baro
+                    existing_aircraft.nac_p = nac_p
+                    existing_aircraft.sil = sil
+                    existing_aircraft.sil_type = sil_type
+                    existing_aircraft.gva = gva
+                    existing_aircraft.sda = sda
+                    existing_aircraft.modea = modea
+                    existing_aircraft.modec = modec
                     existing_aircraft.messages = aircraft_data.get("messages")
                     existing_aircraft.seen = seen
                     existing_aircraft.rssi = rssi
@@ -124,14 +177,8 @@ def fetch_and_update_aircraft_data():
 
 if __name__ == '__main__':
     with app.app_context():
-        #se apagarem a base de dados e estiver a dar erro façam este comando para criar a DB
-        #db.create_all()
-        #depois de fazer isso uma vez pode-se voltar a meter em comment
-
-        db.session.query(Aircraft).delete()
-        db.session.commit()
-
-        # Cria todas as tabelas definidas no modelo
+        # Limpar completamente a base de dados existente
+        db.drop_all()
         db.create_all()
 
     # Agendar a tarefa para rodar a cada 2 segundos

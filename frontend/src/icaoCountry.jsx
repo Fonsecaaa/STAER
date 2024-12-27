@@ -81,9 +81,6 @@ export const icaoCountryMap = [
 	{ start: 0x340000, end: 0x37FFFF, country: "Spain", flag: "https://flagcdn.com/es.svg" },
 	{ start: 0x380000, end: 0x3BFFFF, country: "France", flag: "https://flagcdn.com/fr.svg" },
 	{ start: 0x3C0000, end: 0x3FFFFF, country: "Germany", flag: "https://flagcdn.com/de.svg" },
-    // UK territories are officially part of the UK range
-    // add extra entries that are above the UK and take precedence
-    // this is a mess ... let's still try
 	{ start: 0x400000, end: 0x4001BF, country: "Bermuda", flag: "https://flagcdn.com/bm.svg" },
 	{ start: 0x4001C0, end: 0x4001FF, country: "Cayman Islands", flag: "https://flagcdn.com/ky.svg" },
 	{ start: 0x400300, end: 0x4003FF, country: "Turks and Caicos Islands", flag: "https://flagcdn.com/tc.svg" },
@@ -94,7 +91,6 @@ export const icaoCountryMap = [
 	{ start: 0x43BE00, end: 0x43BEFF, country: "Bermuda", flag: "https://flagcdn.com/bm.svg" },
 	{ start: 0x43E700, end: 0x43EAFD, country: "Isle of Man", flag: "https://flagcdn.com/im.svg" },
 	{ start: 0x43EAFE, end: 0x43EEFF, country: "Guernsey", flag: "https://flagcdn.com/gg.svg" },
-    // catch all United Kingdom for the even more obscure stuff
 	{ start: 0x400000, end: 0x43FFFF, country: "United Kingdom", flag: "https://flagcdn.com/gb.svg" },
 	{ start: 0x440000, end: 0x447FFF, country: "Austria", flag: "https://flagcdn.com/at.svg" },
 	{ start: 0x448000, end: 0x44FFFF, country: "Belgium", flag: "https://flagcdn.com/be.svg" },
