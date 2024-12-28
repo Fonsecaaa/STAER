@@ -29,6 +29,11 @@ function App() {
   const [selectedAirplane, setSelectedAirplane] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false); // Para controlar a visibilidade da sidebar
 
+  const handleAirplaneClick = (airplane) => {
+    setSelectedAirplane(airplane);
+    setSidebarOpen(true);
+  };
+
   // Função para fechar a sidebar
 const closeSidebar = () => {
   setSidebarOpen(false);
@@ -74,23 +79,64 @@ const openSidebar = (airplane) => {
     }
   };
 
-  const updateAirplanePaths = (airplanes) => {
-    const paths = { ...airplanePaths };
-    airplanes.forEach((airplane) => {
-      if (airplane.lat && airplane.lon) {
-        const hex = airplane.hex;
-        if (!paths[hex]) {
-          paths[hex] = [];
+  // Função para determinar a cor baseada na altitude
+  const getColorByAltitude = (altitude) => {
+    if (!altitude) return '#808080'; // Cinza para altitude desconhecida
+    altitude = Number(altitude);
+
+    if (altitude <= 0) return '#FF4500';
+    if (altitude <= 500) return '#FF4500';
+    if (altitude <= 1000) return '#FF8C00';
+    if (altitude <= 2000) return '#FFD700';
+    if (altitude <= 4000) return '#ADFF2F';
+    if (altitude <= 6000) return '#32CD32';
+    if (altitude <= 8000) return '#008000';
+    if (altitude <= 10000) return '#20B2AA';
+    if (altitude <= 20000) return '#00BFFF';
+    if (altitude <= 30000) return '#0000FF';
+    if (altitude <= 40000) return '#8A2BE2';
+    if (altitude > 40000) return '#FF00FF';
+    return '#808080';
+  };
+
+  const updateAirplanePaths = (newAirplanes) => {
+    setAirplanePaths(prevPaths => {
+      const updatedPaths = { ...prevPaths };
+
+      newAirplanes.forEach((airplane) => {
+        if (airplane.lat && airplane.lon) {
+          const hex = airplane.hex;
+
+          if (!updatedPaths[hex]) {
+            updatedPaths[hex] = [];
+          }
+
+          const newPosition = {
+            position: [airplane.lat, airplane.lon],
+            altitude: airplane.alt_baro
+          };
+
+          const lastPosition = updatedPaths[hex][updatedPaths[hex].length - 1];
+
+          if (!lastPosition ||
+              lastPosition.position[0] !== newPosition.position[0] ||
+              lastPosition.position[1] !== newPosition.position[1]) {
+            updatedPaths[hex].push(newPosition);
+          }
+
+          if (updatedPaths[hex].length > 2000) {
+            updatedPaths[hex] = updatedPaths[hex].slice(-2000);
+          }
         }
-        paths[hex].push([airplane.lat, airplane.lon]);
-      }
+      });
+
+      return updatedPaths;
     });
-    setAirplanePaths(paths);
   };
 
   const airplaneIcon = () => {
   return L.icon({
-    iconUrl: "/airplane-icon.png",
+    iconUrl: "/A3.png",
     iconSize: [30, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -15],
@@ -130,7 +176,7 @@ const openSidebar = (airplane) => {
     const startWidth = sidebarWidth;
 
     const handleMouseMove = (moveEvent) => {
-      const newWidth = startWidth - (moveEvent.clientX - startX); // Invertendo a lógica
+      const newWidth = startWidth - (moveEvent.clientX - startX);
       if (newWidth > 300) {
         setSidebarWidth(newWidth); // Atualiza a largura do sidebar
       }
@@ -410,7 +456,7 @@ const openSidebar = (airplane) => {
           </Marker>
       ))}
 
-      {/* Adicionando aviões no mapa */}
+      {/* aviões no mapa */}
       {airplanes.map((airplane) => (
           airplane.lat && airplane.lon && (
               <Marker
@@ -421,7 +467,7 @@ const openSidebar = (airplane) => {
 
                   rotationOrigin="center"
                   eventHandlers={{
-                    click: () => openSidebar(airplane), // Ao clicar no avião, abre a leftSidebar
+                    click: () => handleAirplaneClick(airplane), // Ao clicar no avião, abre a leftSidebar
                   }}
               >
                 <Popup>
@@ -438,15 +484,29 @@ const openSidebar = (airplane) => {
           )
       ))}
 
-      {Object.keys(airplanePaths).map((hex) => (
-          <Polyline
-              key={hex}
-              positions={airplanePaths[hex]}
-              color="blue"
-              weight={3}
-              opacity={0.7}
-          />
-      ))}
+      {/* Traçado das rotas com cores baseadas na altitude */}
+        {Object.entries(airplanePaths).map(([hex, path]) => {
+          if (path.length < 2) return null;
+
+          // Criar segmentos de linha para cada par de pontos
+          return path.slice(1).map((point, index) => {
+            const prevPoint = path[index];
+            const positions = [
+              prevPoint.position,
+              point.position
+            ];
+
+            return (
+              <Polyline
+                key={`${hex}-${index}`}
+                positions={positions}
+                color={getColorByAltitude(point.altitude)}
+                weight={selectedAirplane?.hex === hex ? 3 : 2}
+                opacity={selectedAirplane?.hex === hex ? 0.8 : 0.3}
+              />
+            );
+          });
+        })}
     </MapContainer>
     {/* Imagem da altitude que está no rodapé */}
       <div style={{
