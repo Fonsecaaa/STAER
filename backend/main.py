@@ -50,7 +50,16 @@ def fetch_and_update_aircraft_data():
                         return None
 
                 def parse_altitude(value):
-                    return 0.0 if value == "ground" else safe_float(value)
+                    if value == "ground":
+                        return "ground"
+
+                    float_value = safe_float(value)
+
+                    # Se a altitude for 0 ou negativa, retorna "ground"
+                    if float_value is not None and float_value <= 0:
+                        return "ground"
+
+                    return str(float_value) if float_value is not None else None
 
                 # Limpar os dados antes de usar
                 alt_baro = parse_altitude(aircraft_data.get("alt_baro"))
