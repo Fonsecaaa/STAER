@@ -168,7 +168,7 @@ def fetch_and_update_aircraft_data():
                     existing_aircraft.messages = aircraft_data.get("messages")
                     existing_aircraft.seen = seen
                     existing_aircraft.rssi = rssi
-                    existing_aircraft.seen_pos = seen_pos  # Atualizar a posição do último visto
+                    existing_aircraft.seen_pos = seen_pos 
 
             db.session.commit()
         print("Dados de aeronaves atualizados com sucesso!")
@@ -177,14 +177,14 @@ def fetch_and_update_aircraft_data():
 
 if __name__ == '__main__':
     with app.app_context():
-        # Limpar completamente a base de dados existente
-        db.drop_all()
+
+        db.drop_all() # Limpar completamente a base de dados existente
         db.create_all()
 
     # Agendar a tarefa para rodar a cada 2 segundos
     scheduler.add_job(fetch_and_update_aircraft_data, 'interval', seconds=2)
 
-    # Agendar a tarefa de limpeza a cada 5 segundos
-    scheduler.add_job(remove_inactive_aircrafts, 'interval', seconds=5)
+    # Agendar a tarefa de limpeza a cada 15 segundos
+    scheduler.add_job(remove_inactive_aircrafts, 'interval', seconds=15)
 
     app.run(debug=True, port=5002)
