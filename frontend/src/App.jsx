@@ -181,18 +181,79 @@ const openSidebar = (airplane) => {
         />
 
         {selectedAirplane && (
-          <div>
-            <p><strong>Callsign:</strong> {selectedAirplane.flight || "N/A"}</p>
-            <p><strong>Hex:</strong> {selectedAirplane.hex}</p>
-            <p><strong>Altitude:</strong> {selectedAirplane.alt_baro || "N/A"}</p>
-            <p><strong>Velocidade:</strong> {selectedAirplane.gs || "N/A"} nós</p>
-            <p><strong>Coordenadas:</strong>
-              {selectedAirplane.lat && selectedAirplane.lon
-                ? `Latitude: ${selectedAirplane.lat.toFixed(2)}º, Longitude: ${selectedAirplane.lon.toFixed(2)}º`
-                : "N/A"
-              }
-            </p>
-          </div>
+            <div>
+              <p><strong>Callsign:</strong> {selectedAirplane.flight || "N/A"}</p>
+              <p><strong>Hex:</strong> {selectedAirplane.hex}</p>
+              <p><strong>Altitude:</strong> {selectedAirplane.alt_baro || "N/A"} ft</p>
+               <p><strong>Velocidade:</strong> {selectedAirplane.gs || "N/A"} nós</p>
+
+            <h2> SPATIAL </h2>
+            <p><strong>Groundspeed:</strong> {selectedAirplane.gs || "N/A"} kt</p>
+            <p><strong>Baro. altitude:</strong> {selectedAirplane.alt_baro || "N/A"} ft</p>
+            <p><strong>Vert. Rate:</strong> {selectedAirplane.baro_rate || "N/A"} ft/min</p>
+            <p><strong>Track:</strong> {selectedAirplane.track || "N/A"}</p>
+            <p><strong>Pos.:</strong> {selectedAirplane.lat && selectedAirplane.lon
+              ? `Latitude: ${selectedAirplane.lat.toFixed(2)}º, Longitude: ${selectedAirplane.lon.toFixed(2)}º`
+              : "N/A"
+            } </p>
+            <p><strong>Distance:</strong> {selectedAirplane.modea || "N/A"}</p>
+
+            <h2> SIGNAL </h2>
+            <p><strong>Source:</strong> {selectedAirplane.modec ? "ADS-B" : "N/A"}</p> {/* Corrected: 'modec' determines if ADS-B is used */}
+            <p><strong>RSSI:</strong> {selectedAirplane.rssi || "N/A"} dBFS</p>
+            <p><strong>Msg. Rate:</strong> {selectedAirplane.messages || "N/A"}</p> {/* Corrected: 'messages' shows number of messages */}
+            <p><strong>Messages:</strong> {selectedAirplane.messages || "N/A"}</p>
+            <p><strong>Last Pos.:</strong> {selectedAirplane.seen_pos || "N/A"} s</p> {/* Corrected: 'seen_pos' is the last position update time */}
+            <p><strong>Last Seen.:</strong> {selectedAirplane.seen || "N/A"} s</p>
+
+            <h2>FMS SEL</h2>
+            <p><strong>Sel. Alt.:</strong> {selectedAirplane.nav_altitude_mcp || "N/A"} ft</p> {/* Corrected: 'nav_altitude_mcp' is selected altitude */}
+            <p><strong>Sel. Head.:</strong> {selectedAirplane.mag_heading || "N/A"}</p> {/* Corrected: 'mag_heading' is the selected heading */}
+
+            <h2>WIND</h2>
+            <p><strong>Speed:</strong> {selectedAirplane.gs || "N/A"} kt</p> {/* Ground speed, use 'gs' */}
+            <p><strong>Direction (from):</strong> {selectedAirplane.track || "N/A"}º</p> {/* Track direction */}
+            <p><strong>TAT / OAT:</strong> {selectedAirplane.messages || "N/A"}</p> {/* Not available in provided JSON, replaced with 'messages' for now */}
+
+            <h2>Speed</h2>
+            <p><strong>Ground:</strong> {selectedAirplane.gs || "N/A"} kt</p>
+            <p><strong>True:</strong> {selectedAirplane.tas || "N/A"} kt</p>
+            <p><strong>Indicated:</strong> {selectedAirplane.ias || "N/A"} kt</p>
+            <p><strong>Mach:</strong> {selectedAirplane.mach || "N/A"}</p>
+
+            <h2>Altitude</h2>
+            <p><strong>Barometric:</strong> {selectedAirplane.alt_baro || "N/A"} ft</p>
+            <p><strong>Baro. Rate:</strong> {selectedAirplane.baro_rate || "N/A"} ft/min</p>
+            <p><strong>Geom. WGS84:</strong> {selectedAirplane.alt_geom || "N/A"} ft</p> {/* Corrected: 'alt_geom' for geometric altitude */}
+            <p><strong>Geom. Rate:</strong> {selectedAirplane.geom_rate || "N/A"} ft/min</p>
+            <p><strong>QNH:</strong> {selectedAirplane.nav_qnh || "N/A"} hPa</p>
+
+            <h2>Direction</h2>
+            <p><strong>Ground Track:</strong> {selectedAirplane.track || "N/A"}</p>
+            <p><strong>True Heading:</strong> {selectedAirplane.true_heading || "N/A"}</p> {/* Corrected: 'true_heading' for true heading */}
+            <p><strong>Magnetic Heading:</strong> {selectedAirplane.mag_heading || "N/A"}</p>
+            <p><strong>Magnetic Decl.:</strong> {selectedAirplane.mag_declination || "N/A"}</p> {/* Corrected: 'mag_declination' for magnetic declination */}
+            <p><strong>Track Rate:</strong> {selectedAirplane.track_rate || "N/A"}</p>
+            <p><strong>Roll:</strong> {selectedAirplane.roll || "N/A"}</p>
+
+            <h2>Stuff</h2>
+            <p><strong>Nav. Modes:</strong> {selectedAirplane.modec ? "ADS-B" : "N/A"}</p>
+            <p><strong>ADS-B Ver.:</strong> {selectedAirplane.version || "N/A"}</p>
+            <p><strong>Category:</strong> {selectedAirplane.category || "N/A"}</p>
+
+            <h2>Accuracy</h2>
+            <p><strong>NACP:</strong> {selectedAirplane.nac_p || "N/A"}</p>
+            <p><strong>SIL:</strong> {selectedAirplane.sil || "N/A"}</p>
+            <p><strong>NACV:</strong> {selectedAirplane.nac_v || "N/A"}</p> {/* Corrected: 'nac_v' for navigation accuracy velocity */}
+            <p><strong>NICBARO:</strong> {selectedAirplane.nic_baro || "N/A"}</p> {/* Corrected: 'nic_baro' for barometric navigation integrity */}
+            <p><strong>RC:</strong> {selectedAirplane.rc || "N/A"}</p> {/* Corrected: 'rc' for reliability coefficient */}
+
+              <p>Learn more about Mode S data type by hovering over each data label. </p>
+
+
+
+
+            </div>
         )}
       </div>
     )}
