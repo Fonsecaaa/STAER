@@ -5,7 +5,7 @@ class Aircraft(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     hex = db.Column(db.String(6), nullable=False)  # Código hexadecimal único
     flight = db.Column(db.String(10), nullable=True)  # Código de voo
-    alt_baro = db.Column(db.Float, nullable=True)  # Altitude barométrica
+    alt_baro = db.Column(db.String, nullable=True)  # Altitude barométrica
     alt_geom = db.Column(db.Float, nullable=True)  # Altitude geométrica
     gs = db.Column(db.Float, nullable=True)  # Ground Speed (Velocidade de solo)
     ias = db.Column(db.Float, nullable=True)  # Indicated Airspeed (Velocidade indicada)

@@ -171,7 +171,7 @@ const openSidebar = (airplane) => {
           style={{
             position: 'absolute',
             top: '10px',
-            right: '5px',
+            right: '15px',
             cursor: 'pointer',
             width: '20px',
             height: '20px',
@@ -251,7 +251,7 @@ const openSidebar = (airplane) => {
               }}>Altitude</h2>
               <p style={{ textAlign: 'left' }}><strong>Barometric:</strong> {selectedAirplane.alt_baro || "N/A"} ft</p>
               <p style={{ textAlign: 'left' }}><strong>Baro. Rate:</strong> {selectedAirplane.baro_rate || "N/A"} ft/min</p>
-              <p style={{ textAlign: 'left' }}><strong>Geom. WGS84:</strong> {selectedAirplane.alt_geom || "N/A"} ft </p> {/* Corrected: 'alt_geom' for geometric altitude */}
+              <p style={{ textAlign: 'left' }}><strong>Geom. WGS84:</strong> {selectedAirplane.alt_geom || "N/A"} ft </p>
               <p style={{ textAlign: 'left' }}><strong>Geom. Rate:</strong> {selectedAirplane.geom_rate || "N/A"} ft/min</p>
               <p style={{ textAlign: 'left' }}><strong>QNH:</strong> {selectedAirplane.nav_qnh || "N/A"} hPa</p>
 
@@ -262,9 +262,9 @@ const openSidebar = (airplane) => {
                 marginBottom: '10px'
               }}>Direction</h2>
               <p style={{ textAlign: 'left' }}><strong>Ground Track:</strong> {selectedAirplane.track || "N/A"}º</p>
-              <p style={{ textAlign: 'left' }} ><strong>True Heading:</strong> {selectedAirplane.true_heading || "N/A"}º</p> {/* Corrected: 'true_heading' for true heading */}
+              <p style={{ textAlign: 'left' }} ><strong>True Heading:</strong> {selectedAirplane.true_heading || "N/A"}º</p>
               <p style={{ textAlign: 'left' }}><strong>Magnetic Heading:</strong> {selectedAirplane.mag_heading || "N/A"}º</p>
-              <p style={{ textAlign: 'left' }} ><strong>Magnetic Decl.:</strong> {selectedAirplane.mag_declination || "N/A"}º</p> {/* Corrected: 'mag_declination' for magnetic declination */}
+              <p style={{ textAlign: 'left' }} ><strong>Magnetic Decl.:</strong> {selectedAirplane.mag_declination || "N/A"}º</p>
               <p style={{ textAlign: 'left' }}><strong>Track Rate:</strong> {selectedAirplane.track_rate || "N/A"}</p>
               <p style={{ textAlign: 'left' }}><strong>Roll:</strong> {selectedAirplane.roll || "N/A"}</p>
 
@@ -286,8 +286,9 @@ const openSidebar = (airplane) => {
       </div>
     )}
 
-    {/* Sidebar com informações da tabela */}
-    <Sidebar width={sidebarWidth}>
+    {/* Sidebar com informações da tabela ao colocar o zIndex superior ao da imagem da alt
+    temos uma sidebar que passa por cima da imagem*/}
+    <Sidebar width={sidebarWidth} style={{zIndex: 1500}} >
       <ResizeButtonComponent handleMouseDown={handleMouseDown}/>
 
       <h2>Informações dos Aviões</h2>
@@ -325,25 +326,25 @@ const openSidebar = (airplane) => {
     </Sidebar>
 
     <MapContainer
-      center={[40, -5]}
-      zoom={6}
-      style={{ height: "100vh", width: "100vw" }}
-      zoomControl={false}
+        center={[40, -5]}
+        zoom={6}
+        style={{height: "100vh", width: "100vw"}}
+        zoomControl={false}
     >
       <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
       {/* Adicionando a antena com popup */}
       <Marker
-        key="Antena Rua Nove de Abril"
-        position={[41.171060, -8.616363]}
-        icon={L.icon({
-          iconUrl: "/signal-tower.png", // ícone da antena
-          iconSize: [40, 40],
-          iconAnchor: [20, 40],
-          popupAnchor: [0, -40],
-        })}
+          key="Antena Rua Nove de Abril"
+          position={[41.171060, -8.616363]}
+          icon={L.icon({
+            iconUrl: "/signal-tower.png", // ícone da antena
+            iconSize: [40, 40],
+            iconAnchor: [20, 40],
+            popupAnchor: [0, -40],
+          })}
       >
         <Popup>
           <strong>Antena</strong>
@@ -352,99 +353,113 @@ const openSidebar = (airplane) => {
 
       {/* Circulos de 100, 150 e 200 nmi ao redor da antena */}
       <Circle
-        center={[41.171060, -8.616363]}
-        radius={100 * 1852} // 100 nmi em metros
-        color="black"
-        weight={2}
-        opacity={0.3}
-        fillColor="transparent"
-        fillOpacity={0}
+          center={[41.171060, -8.616363]}
+          radius={100 * 1852} // 100 nmi em metros
+          color="black"
+          weight={2}
+          opacity={0.3}
+          fillColor="transparent"
+          fillOpacity={0}
       />
       <Circle
-        center={[41.171060, -8.616363]}
-        radius={150 * 1852} // 150 nmi em metros
-        color="black"
-        weight={2}
-        opacity={0.3}
-        fillColor="transparent"
-        fillOpacity={0}
+          center={[41.171060, -8.616363]}
+          radius={150 * 1852} // 150 nmi em metros
+          color="black"
+          weight={2}
+          opacity={0.3}
+          fillColor="transparent"
+          fillOpacity={0}
       />
       <Circle
-        center={[41.171060, -8.616363]}
-        radius={200 * 1852} // 200 nmi em metros
-        color="black"
-        weight={2}
-        opacity={0.3}
-        fillColor="transparent"
-        fillOpacity={0}
+          center={[41.171060, -8.616363]}
+          radius={200 * 1852} // 200 nmi em metros
+          color="black"
+          weight={2}
+          opacity={0.3}
+          fillColor="transparent"
+          fillOpacity={0}
       />
 
       {/* Adicionando localizações de radares */}
       {radars.map((radar) => (
-        <Marker
-          key={radar.name}
-          position={[radar.lat, radar.lon]}
-          icon={radarIcon()}
-        >
-          <Popup>
-            <strong>{radar.name}</strong><br />
-            Localização de Radar
-          </Popup>
-        </Marker>
+          <Marker
+              key={radar.name}
+              position={[radar.lat, radar.lon]}
+              icon={radarIcon()}
+          >
+            <Popup>
+              <strong>{radar.name}</strong><br/>
+              Localização de Radar
+            </Popup>
+          </Marker>
       ))}
 
       {/* aeroportos */}
-          {airports.map((airport) => (
-              <Marker
-                  key={airport.name}
-                  position={[airport.lat, airport.lon]}
-                  icon={airportIcon(airport.type)}
-              >
-                <Popup>
-                  <strong>{airport.name}</strong><br/>
-                  <strong>ICAO:</strong> {airport.icao} <br/>
-                  <strong>IATA:</strong> {airport.iata} <br/>
-                  <strong>Tipo:</strong> {airport.type === "airport" ? "Aeroporto" : airport.type === "aerodrome" ? "Aeródromo" : "Base Militar"}
-                </Popup>
-              </Marker>
-          ))}
+      {airports.map((airport) => (
+          <Marker
+              key={airport.name}
+              position={[airport.lat, airport.lon]}
+              icon={airportIcon(airport.type)}
+          >
+            <Popup>
+              <strong>{airport.name}</strong><br/>
+              <strong>ICAO:</strong> {airport.icao} <br/>
+              <strong>IATA:</strong> {airport.iata} <br/>
+              <strong>Tipo:</strong> {airport.type === "airport" ? "Aeroporto" : airport.type === "aerodrome" ? "Aeródromo" : "Base Militar"}
+            </Popup>
+          </Marker>
+      ))}
 
       {/* Adicionando aviões no mapa */}
       {airplanes.map((airplane) => (
-        airplane.lat && airplane.lon && (
-          <Marker
-            key={airplane.hex}
-            position={[airplane.lat, airplane.lon]}
-            icon={airplaneIcon(airplane.alt_baro)}
-            rotationAngle={airplane.track || 0}
-            rotationOrigin="center"
-            eventHandlers={{
-              click: () => openSidebar(airplane), // Ao clicar no avião, abre a leftSidebar
-            }}
-          >
-            <Popup>
-              <strong>Voo:</strong> {airplane.flight || "N/A"}<br />
-              <strong>Hex:</strong> {airplane.hex}<br />
-              <strong>Altitude:</strong> {airplane.alt_baro || "N/A"} ft<br />
-              <strong>Velocidade:</strong> {airplane.gs || "N/A"} nós<br />
-              <strong>RSSI:</strong> {airplane.rssi || "N/A"} dBFS<br />
-            </Popup>
-          </Marker>
-        )
+          airplane.lat && airplane.lon && (
+              <Marker
+                  key={airplane.hex}
+                  position={[airplane.lat, airplane.lon]}
+                  icon={airplaneIcon(airplane.alt_baro)}
+                  rotationAngle={airplane.track || 0}
+
+                  rotationOrigin="center"
+                  eventHandlers={{
+                    click: () => openSidebar(airplane), // Ao clicar no avião, abre a leftSidebar
+                  }}
+              >
+                <Popup>
+                  <strong>Voo:</strong> {airplane.flight || "N/A"}<br/>
+                  <strong>Hex:</strong> {airplane.hex}<br/>
+                  <strong>Altitude:</strong> {airplane.alt_baro || "N/A"} ft<br/>
+                  <strong>Velocidade:</strong> {airplane.gs || "N/A"} nós<br/>
+                  <strong>RSSI:</strong> {airplane.rssi || "N/A"} dBFS<br/>
+                  <strong>Last Pos.:</strong> {airplane.seen_pos || "N/A"}s<br/>
+                  <strong>Last Seen.:</strong> {airplane.seen || "N/A"}s<br/>
+
+                </Popup>
+              </Marker>
+          )
       ))}
 
       {Object.keys(airplanePaths).map((hex) => (
-        <Polyline
-          key={hex}
-          positions={airplanePaths[hex]}
-          color="blue"
-          weight={3}
-          opacity={0.7}
-        />
+          <Polyline
+              key={hex}
+              positions={airplanePaths[hex]}
+              color="blue"
+              weight={3}
+              opacity={0.7}
+          />
       ))}
     </MapContainer>
+    {/* Imagem da altitude que está no rodapé */}
+      <div style={{
+      position: 'fixed',
+      bottom: '20px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      zIndex:1200, marginLeft: '-50px'
+    }}>
+      <img src="/Altitude.svg" alt="Altitude Image" style={{ width: '800px', height: 'auto', pointerEvents: 'none'}} />
+    </div>
   </div>
-);
+  );
 }
 
 export default App;
