@@ -166,6 +166,20 @@ const openSidebar = (airplane) => {
     });
   };
 
+  const getBaroRateIcon = (baroRate) => {
+    if (baroRate > 0) {
+      return '▲';
+    } else if (baroRate < 0) {
+      return '▼';
+    }
+    return '';
+  };
+
+  if (isLoading) {
+    // Mostra o loader enquanto o estado isLoading for true
+    return <Loader />;
+  }
+
   if (isLoading) {
     // Mostra o loader enquanto o estado isLoading for true
     return <Loader />;
@@ -221,27 +235,27 @@ const openSidebar = (airplane) => {
             cursor: 'pointer',
             width: '20px',
             height: '20px',
-            filter: 'invert(33%) sepia(69%) saturate(4683%) hue-rotate(24deg) brightness(97%) contrast(91%)' // Filtro para a cor #f1c496
+            filter: 'invert(33%) sepia(69%) saturate(4683%) hue-rotate(24deg) brightness(97%) contrast(91%)'
           }}
         />
 
         {selectedAirplane && (
             <div>
-              <p style={{ textAlign: 'left' }}><strong>Callsign:</strong> {selectedAirplane.flight || "N/A"}</p>
-              <p style={{ textAlign: 'left' }}><strong>Hex:</strong> {selectedAirplane.hex}</p>
-              <p style={{ textAlign: 'left' }}><strong>Altitude:</strong> {selectedAirplane.alt_baro || "N/A"} ft</p>
-              <p style={{ textAlign: 'left' }}><strong>Velocidade:</strong> {selectedAirplane.gs || "N/A"} nós</p>
+              <p style={{textAlign: 'left'}}><strong>Callsign:</strong> {selectedAirplane.flight || "N/A"}</p>
+              <p style={{textAlign: 'left'}}><strong>Hex:</strong> {selectedAirplane.hex}</p>
+              <p style={{textAlign: 'left'}}><strong>Altitude:</strong> {selectedAirplane.alt_baro || "N/A"} ft</p>
+              <p style={{textAlign: 'left'}}><strong>Velocidade:</strong> {selectedAirplane.gs || "N/A"} nós</p>
 
               <h3 style={{
                 backgroundColor: '#003f4b',
                 color: 'white',
                 marginBottom: '10px'
               }}>SPATIAL</h3>
-              <p style={{ textAlign: 'left' }}><strong>Groundspeed:</strong> {selectedAirplane.gs || "N/A"} kt</p>
-              <p style={{ textAlign: 'left' }}><strong>Baro. altitude:</strong> {selectedAirplane.alt_baro || "N/A"} ft</p>
-              <p style={{ textAlign: 'left' }}><strong>Vert. Rate:</strong> {selectedAirplane.baro_rate || "N/A"} ft/min</p>
-              <p style={{ textAlign: 'left' }}><strong>Track:</strong> {selectedAirplane.track || "N/A"}º</p>
-              <p style={{ textAlign: 'left' }}><strong>Pos.:</strong> {selectedAirplane.lat && selectedAirplane.lon
+              <p style={{textAlign: 'left'}}><strong>Groundspeed:</strong> {selectedAirplane.gs || "N/A"} kt</p>
+              <p style={{textAlign: 'left'}}><strong>Baro.altitude:</strong> {selectedAirplane.alt_baro || "N/A"} ft <span>{getBaroRateIcon(selectedAirplane.baro_rate)}</span></p>
+              <p style={{textAlign: 'left'}}><strong>Vert.Rate:</strong> {selectedAirplane.baro_rate || "N/A"} ft/min</p>
+              <p style={{textAlign: 'left'}}><strong>Track:</strong> {selectedAirplane.track || "N/A"}º</p>
+              <p style={{textAlign: 'left'}}><strong>Pos.:</strong> {selectedAirplane.lat && selectedAirplane.lon
                   ? `Latitude: ${selectedAirplane.lat.toFixed(2)}º, Longitude: ${selectedAirplane.lon.toFixed(2)}º`
                   : "N/A"
               } </p>
@@ -252,12 +266,12 @@ const openSidebar = (airplane) => {
                 color: 'white',
                 marginBottom: '10px'
               }}>SIGNAL</h2>
-              <p style={{ textAlign: 'left' }}><strong>Source:</strong> {selectedAirplane.modec ? "ADS-B" : "N/A"}</p> {/* Corrected: 'modec' determines if ADS-B is used */}
-              <p style={{ textAlign: 'left' }}><strong>RSSI:</strong> {selectedAirplane.rssi || "N/A"} dBFS</p>
-              <p style={{ textAlign: 'left' }}><strong>Msg. Rate:</strong> {selectedAirplane.messages || "N/A"} </p> {/* Corrected: 'messages' shows number of messages */}
-              <p style={{ textAlign: 'left' }}><strong>Messages:</strong> {selectedAirplane.messages || "N/A"}</p>
-              <p style={{ textAlign: 'left' }}><strong>Last Pos.:</strong> {selectedAirplane.seen_pos || "N/A"} s </p> {/* Corrected: 'seen_pos' is the last position update time */}
-              <p style={{ textAlign: 'left' }}><strong>Last Seen.:</strong> {selectedAirplane.seen || "N/A"} s</p>
+              <p style={{textAlign: 'left'}}><strong>Source:</strong> {selectedAirplane.modec ? "ADS-B" : "N/A"}</p>
+              <p style={{textAlign: 'left'}}><strong>RSSI:</strong> {selectedAirplane.rssi || "N/A"} dBFS</p>
+              <p style={{textAlign: 'left'}}><strong>Msg. Rate:</strong> {selectedAirplane.messages || "N/A"}</p>
+              <p style={{textAlign: 'left'}}><strong>Messages:</strong> {selectedAirplane.messages || "N/A"}</p>
+              <p style={{textAlign: 'left'}}><strong>Last Pos.:</strong> {selectedAirplane.seen_pos || "N/A"} s</p>
+              <p style={{textAlign: 'left'}}><strong>Last Seen.:</strong> {selectedAirplane.seen || "N/A"} s</p>
 
               <h2 style={{
                 backgroundColor: '#003f4b',
@@ -265,8 +279,8 @@ const openSidebar = (airplane) => {
                 width: '100%',
                 marginBottom: '10px'
               }}>FMS SEL</h2>
-              <p style={{ textAlign: 'left' }}><strong>Sel. Alt.:</strong> {selectedAirplane.nav_altitude_mcp || "N/A"} ft </p> {/* Corrected: 'nav_altitude_mcp' is selected altitude */}
-              <p style={{ textAlign: 'left' }}><strong>Sel. Head.:</strong> {selectedAirplane.mag_heading || "N/A"}º</p> {/* Corrected: 'mag_heading' is the selected heading */}
+              <p style={{textAlign: 'left'}}><strong>Sel. Alt.:</strong> {selectedAirplane.nav_altitude_mcp || "N/A"} ft</p>
+              <p style={{textAlign: 'left'}}><strong>Sel. Head.:</strong> {selectedAirplane.mag_heading || "N/A"}º</p>
 
               <h2 style={{
                 backgroundColor: '#003f4b',
@@ -274,9 +288,9 @@ const openSidebar = (airplane) => {
                 width: '100%',
                 marginBottom: '10px'
               }}>WIND</h2>
-              <p style={{ textAlign: 'left' }}><strong>Speed:</strong> {selectedAirplane.gs || "N/A"} kt</p> {/* Ground speed, use 'gs' */}
-              <p style={{ textAlign: 'left' }}><strong>Direction (from):</strong> {selectedAirplane.track || "N/A"}º</p> {/* Track direction */}
-              <p style={{ textAlign: 'left' }}><strong>TAT / OAT:</strong> {selectedAirplane.messages || "N/A"}</p> {/* Not available in provided JSON, replaced with 'messages' for now */}
+              <p style={{textAlign: 'left'}}><strong>Speed:</strong> {selectedAirplane.gs || "N/A"} kt</p>
+              <p style={{textAlign: 'left'}}><strong>Direction (from):</strong> {selectedAirplane.track || "N/A"}º</p>
+              <p style={{textAlign: 'left'}}><strong>TAT / OAT:</strong> {selectedAirplane.messages || "N/A"}</p> {/* Not available in provided JSON, replaced with 'messages' for now */}
 
               <h2 style={{
                 backgroundColor: '#003f4b',
@@ -284,10 +298,10 @@ const openSidebar = (airplane) => {
                 width: '100%',
                 marginBottom: '10px'
               }}>Speed</h2>
-              <p style={{ textAlign: 'left' }}><strong>Ground:</strong> {selectedAirplane.gs || "N/A"} kt</p>
-              <p style={{ textAlign: 'left' }}><strong>True:</strong> {selectedAirplane.tas || "N/A"} kt</p>
-              <p style={{ textAlign: 'left' }}><strong>Indicated:</strong> {selectedAirplane.ias || "N/A"} kt</p>
-              <p style={{ textAlign: 'left' }}><strong>Mach:</strong> {selectedAirplane.mach || "N/A"}</p>
+              <p style={{textAlign: 'left'}}><strong>Ground:</strong> {selectedAirplane.gs || "N/A"} kt</p>
+              <p style={{textAlign: 'left'}}><strong>True:</strong> {selectedAirplane.tas || "N/A"} kt</p>
+              <p style={{textAlign: 'left'}}><strong>Indicated:</strong> {selectedAirplane.ias || "N/A"} kt</p>
+              <p style={{textAlign: 'left'}}><strong>Mach:</strong> {selectedAirplane.mach || "N/A"}</p>
 
               <h2 style={{
                 backgroundColor: '#003f4b',
@@ -295,11 +309,11 @@ const openSidebar = (airplane) => {
                 width: '100%',
                 marginBottom: '10px'
               }}>Altitude</h2>
-              <p style={{ textAlign: 'left' }}><strong>Barometric:</strong> {selectedAirplane.alt_baro || "N/A"} ft</p>
-              <p style={{ textAlign: 'left' }}><strong>Baro. Rate:</strong> {selectedAirplane.baro_rate || "N/A"} ft/min</p>
-              <p style={{ textAlign: 'left' }}><strong>Geom. WGS84:</strong> {selectedAirplane.alt_geom || "N/A"} ft </p>
-              <p style={{ textAlign: 'left' }}><strong>Geom. Rate:</strong> {selectedAirplane.geom_rate || "N/A"} ft/min</p>
-              <p style={{ textAlign: 'left' }}><strong>QNH:</strong> {selectedAirplane.nav_qnh || "N/A"} hPa</p>
+              <p style={{textAlign: 'left'}}><strong>Barometric:</strong> {selectedAirplane.alt_baro || "N/A"} ft <span>{getBaroRateIcon(selectedAirplane.baro_rate)}</span></p>
+              <p style={{textAlign: 'left'}}><strong>Baro.Rate:</strong> {selectedAirplane.baro_rate || "N/A"} ft/min</p>
+              <p style={{textAlign: 'left'}}><strong>Geom.WGS84:</strong> {selectedAirplane.alt_geom || "N/A"} ft <span>{getBaroRateIcon(selectedAirplane.baro_rate)}</span></p>
+              <p style={{textAlign: 'left'}}><strong>Geom.Rate:</strong> {selectedAirplane.geom_rate || "N/A"} ft/min</p>
+              <p style={{textAlign: 'left'}}><strong>QNH:</strong> {selectedAirplane.nav_qnh || "N/A"} hPa</p>
 
               <h2 style={{
                 backgroundColor: '#003f4b',
@@ -307,12 +321,12 @@ const openSidebar = (airplane) => {
                 width: '100%',
                 marginBottom: '10px'
               }}>Direction</h2>
-              <p style={{ textAlign: 'left' }}><strong>Ground Track:</strong> {selectedAirplane.track || "N/A"}º</p>
-              <p style={{ textAlign: 'left' }} ><strong>True Heading:</strong> {selectedAirplane.true_heading || "N/A"}º</p>
-              <p style={{ textAlign: 'left' }}><strong>Magnetic Heading:</strong> {selectedAirplane.mag_heading || "N/A"}º</p>
-              <p style={{ textAlign: 'left' }} ><strong>Magnetic Decl.:</strong> {selectedAirplane.mag_declination || "N/A"}º</p>
-              <p style={{ textAlign: 'left' }}><strong>Track Rate:</strong> {selectedAirplane.track_rate || "N/A"}</p>
-              <p style={{ textAlign: 'left' }}><strong>Roll:</strong> {selectedAirplane.roll || "N/A"}</p>
+              <p style={{textAlign: 'left'}}><strong>Ground Track:</strong> {selectedAirplane.track || "N/A"}º</p>
+              <p style={{textAlign: 'left'}}><strong>True Heading:</strong> {selectedAirplane.true_heading || "N/A"}º</p>
+              <p style={{textAlign: 'left'}}><strong>Magnetic Heading:</strong> {selectedAirplane.mag_heading || "N/A"}º</p>
+              <p style={{textAlign: 'left'}}><strong>Magnetic Decl.:</strong> {selectedAirplane.mag_declination || "N/A"}º</p>
+              <p style={{textAlign: 'left'}}><strong>Track Rate:</strong> {selectedAirplane.track_rate || "N/A"}</p>
+              <p style={{textAlign: 'left'}}><strong>Roll:</strong> {selectedAirplane.roll || "N/A"}</p>
 
               <h2 style={{
                 backgroundColor: '#003f4b',
@@ -320,9 +334,9 @@ const openSidebar = (airplane) => {
                 width: '100%',
                 marginBottom: '10px'
               }}>Stuff</h2>
-              <p style={{ textAlign: 'left' }}><strong>Nav. Modes:</strong> {selectedAirplane.modec ? "ADS-B" : "N/A"}</p>
-              <p style={{ textAlign: 'left' }}><strong>ADS-B Ver.:</strong> {selectedAirplane.version || "N/A"}</p>
-              <p style={{ textAlign: 'left' }}><strong>Category:</strong> {selectedAirplane.category || "N/A"}</p>
+              <p style={{textAlign: 'left'}}><strong>Nav. Modes:</strong> {selectedAirplane.modec ? "ADS-B" : "N/A"}</p>
+              <p style={{textAlign: 'left'}}><strong>ADS-B Ver.:</strong> {selectedAirplane.version || "N/A"}</p>
+              <p style={{textAlign: 'left'}}><strong>Category:</strong> {selectedAirplane.category || "N/A"}</p>
 
               <p>Learn more about Mode S data type by hovering over each data label. </p>
 
@@ -473,7 +487,7 @@ const openSidebar = (airplane) => {
                 <Popup>
                   <strong>Voo:</strong> {airplane.flight || "N/A"}<br/>
                   <strong>Hex:</strong> {airplane.hex}<br/>
-                  <strong>Altitude:</strong> {airplane.alt_baro || "N/A"} ft<br/>
+                  <strong>Altitude:</strong> {airplane.alt_baro || "N/A"} ft <span>{getBaroRateIcon(selectedAirplane.baro_rate)}</span> <br/>
                   <strong>Velocidade:</strong> {airplane.gs || "N/A"} nós<br/>
                   <strong>RSSI:</strong> {airplane.rssi || "N/A"} dBFS<br/>
                   <strong>Last Pos.:</strong> {airplane.seen_pos || "N/A"}s<br/>
