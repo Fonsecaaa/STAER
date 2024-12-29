@@ -84,6 +84,8 @@ const openSidebar = (airplane) => {
     if (!altitude) return '#808080'; // Cinza para altitude desconhecida
     altitude = Number(altitude);
 
+
+    if (altitude <= -350) return '#808080';
     if (altitude <= 0) return '#FF4500';
     if (altitude <= 500) return '#FF4500';
     if (altitude <= 1000) return '#FF8C00';
@@ -235,7 +237,7 @@ const openSidebar = (airplane) => {
             cursor: 'pointer',
             width: '20px',
             height: '20px',
-            filter: 'invert(33%) sepia(69%) saturate(4683%) hue-rotate(24deg) brightness(97%) contrast(91%)'
+            filter: 'invert(33%) sepia(69%) saturate(4683%) hue-rotate(24deg) brightness(97%) contrast(91%)' // Filtro para a cor #f1c496
           }}
         />
 
@@ -487,7 +489,7 @@ const openSidebar = (airplane) => {
                 <Popup>
                   <strong>Voo:</strong> {airplane.flight || "N/A"}<br/>
                   <strong>Hex:</strong> {airplane.hex}<br/>
-                  <strong>Altitude:</strong> {airplane.alt_baro || "N/A"} ft <span>{getBaroRateIcon(selectedAirplane.baro_rate)}</span> <br/>
+                  <strong>Altitude:</strong> {airplane.alt_baro || "N/A"} ft <br/>
                   <strong>Velocidade:</strong> {airplane.gs || "N/A"} nós<br/>
                   <strong>RSSI:</strong> {airplane.rssi || "N/A"} dBFS<br/>
                   <strong>Last Pos.:</strong> {airplane.seen_pos || "N/A"}s<br/>
