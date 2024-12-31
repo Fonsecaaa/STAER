@@ -5,6 +5,33 @@ from flask import jsonify
 from datetime import datetime, timedelta
 
 
+# API OpenSky
+user_name = 'Fonseca'
+password = 'test123'
+
+# Função para buscar dados de voo da API open sky
+def get_flight_airports():
+    url = "https://opensky-network.org/api/states/all?lamin=40.9200&lomin=-10.0000&lamax=42.1543&lomax=-7.0000"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Levanta uma exceção se o status HTTP não for 200
+        data = response.json()  # Converte a resposta para JSON
+
+        # Imprime os dados retornados no JSON formatado
+        print("Dados recebidos da API OpenSky:")
+        print("=" * 40)
+        for key, value in data.items():
+            print(f"{key}: {value}")
+        print("=" * 40)
+
+    except requests.exceptions.RequestException as e:
+        print(f"Erro ao fazer a requisição: {e}")
+    except ValueError as e:
+        print(f"Erro ao processar a resposta como JSON: {e}")
+
+
+
+
 @app.route('/api/aircrafts', methods=['GET'])
 def get_aircrafts():
     with app.app_context():
@@ -187,8 +214,11 @@ def fetch_and_update_aircraft_data():
 if __name__ == '__main__':
     with app.app_context():
 
-        db.drop_all() # Limpar completamente a base de dados existente
+
+        db.drop_all() # Limpa completamente a base de dados existente
         db.create_all()
+
+        get_flight_airports()
 
     # Agendar a tarefa para rodar a cada 2 segundos
     scheduler.add_job(fetch_and_update_aircraft_data, 'interval', seconds=2)

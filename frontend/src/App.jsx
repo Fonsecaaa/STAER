@@ -13,14 +13,6 @@ import React from 'react';
 import { Loader } from './Loader.jsx';
 import { getCountryByHex } from './icaoCountry.jsx';
 
-const ResizeButtonComponent = ({ handleMouseDown }) => {
-  return (
-    <ResizeImage onMouseDown={handleMouseDown}>
-      <img src="/toggle-sidebar-width.png" alt="sidebarToggle" />
-    </ResizeImage>
-  );
-};
-
 function App() {
   const [airplanes, setAirplanes] = useState([]);
   const [airplanePaths, setAirplanePaths] = useState({});
@@ -28,6 +20,30 @@ function App() {
   const [sidebarWidth, setSidebarWidth] = useState(300); // Estado para largura do sidebar
   const [selectedAirplane, setSelectedAirplane] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false); // Para controlar a visibilidade da sidebar
+
+  const [filterType, setFilterType] = useState("none"); // "none", "speed", or "altitude"
+  const [filterValue, setFilterValue] = useState(0);
+
+  const getFilteredAirplanes = () => {
+    if (filterType === "none") return airplanes;
+
+    return airplanes.filter(airplane => {
+      if (filterType === "speed") {
+        return airplane.gs >= filterValue;
+      } else if (filterType === "altitude") {
+        return airplane.alt_baro >= filterValue;
+      }
+      return true;
+    });
+  };
+
+  const ResizeButtonComponent = ({ handleMouseDown }) => {
+  return (
+    <ResizeImage onMouseDown={handleMouseDown}>
+      <img src="/toggle-sidebar-width.png" alt="sidebarToggle" />
+    </ResizeImage>
+  );
+};
 
   const handleAirplaneClick = (airplane) => {
     setSelectedAirplane(airplane);
@@ -45,19 +61,9 @@ const openSidebar = (airplane) => {
   setSidebarOpen(true);
 };
 
- // Atualiza os dados do avião selecionado a cada mudança na lista de aviões
-  useEffect(() => {
-    if (selectedAirplane) {
-      const updatedAirplane = airplanes.find(
-        (airplane) => airplane.hex === selectedAirplane.hex
-      );
-      setSelectedAirplane(updatedAirplane || null);
-    }
-  }, [airplanes]);
-
   useEffect(() => {
     // Mostra o loader
-    const timeout = setTimeout(() => setIsLoading(false), 2000);
+    const timeout = setTimeout(() => setIsLoading(false), 1000);
 
     return () => clearTimeout(timeout);
   }, []);
@@ -136,12 +142,20 @@ const openSidebar = (airplane) => {
     });
   };
 
-  const airplaneIcon = () => {
-  return L.icon({
-    iconUrl: "/A3.png",
+const airplaneIcon = (altitude, category, track) => {
+  const getIconUrl = (category) => {
+    const validCategories = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'B0', 'B1'];
+    return validCategories.includes(category)
+      ? `/${category}.png`
+      : '/A3.png';
+  };
+
+  return L.divIcon({
+    html: `<img src="${getIconUrl(category)}" style="width: 30px; height: 30px; transform: rotate(${track || 0}deg);">`,
+    className: 'airplane-icon',
     iconSize: [30, 30],
     iconAnchor: [15, 15],
-    popupAnchor: [0, -15],
+    popupAnchor: [0, -15]
   });
 };
 
@@ -210,332 +224,384 @@ const openSidebar = (airplane) => {
     e.preventDefault();
   };
 
+
+
   return (
-  <div>
-    {/* Left Sidebar */}
-    {sidebarOpen && (
-      <div style={{
-        position: 'fixed',
-        top: '0',
-        left: '0',
-        width: '200px',
-        height: '100%',
-        backgroundColor: '#313131',
-        boxShadow: '2px 0 5px rgba(0, 0, 0, 0.3)',
-        zIndex: 1000,
-        overflowY: 'auto'
-      }}>
-        {/* Imagem para fechar a sidebar */}
-        <img
-          src="/close-settings.png"
-          alt="Fechar Sidebar"
-          onClick={closeSidebar}
-          style={{
-            position: 'absolute',
-            top: '10px',
-            right: '15px',
-            cursor: 'pointer',
-            width: '20px',
-            height: '20px',
-            filter: 'invert(33%) sepia(69%) saturate(4683%) hue-rotate(24deg) brightness(97%) contrast(91%)' // Filtro para a cor #f1c496
-          }}
-        />
+      <div>
 
-        {selectedAirplane && (
-            <div>
-              <p style={{textAlign: 'left'}}><strong>Callsign:</strong> {selectedAirplane.flight || "N/A"}</p>
-              <p style={{textAlign: 'left'}}><strong>Hex:</strong> {selectedAirplane.hex}</p>
-              <p style={{textAlign: 'left'}}><strong>Altitude:</strong> {selectedAirplane.alt_baro || "N/A"} ft</p>
-              <p style={{textAlign: 'left'}}><strong>Velocidade:</strong> {selectedAirplane.gs || "N/A"} nós</p>
+        <div style={{
+          position: 'absolute',
+          top: '10px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+          backgroundColor: 'white',
+          padding: '10px',
+          borderRadius: '5px',
+          boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+        }}>
+          <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              style={{marginRight: '10px', padding: '5px'}}
+          >
+            <option value="none">No Filter</option>
+            <option value="speed">Speed (knots)</option>
+            <option value="altitude">Altitude (feet)</option>
+          </select>
+          {filterType !== 'none' && (
+              <input
+                  type="number"
+                  value={filterValue}
+                  onChange={(e) => setFilterValue(Number(e.target.value))}
+                  placeholder={filterType === 'speed' ? 'Min Speed' : 'Min Altitude'}
+                  style={{padding: '5px'}}
+              />
+          )}
+        </div>
 
-              <h3 style={{
-                backgroundColor: '#003f4b',
-                color: 'white',
-                marginBottom: '10px'
-              }}>SPATIAL</h3>
-              <p style={{textAlign: 'left'}}><strong>Groundspeed:</strong> {selectedAirplane.gs || "N/A"} kt</p>
-              <p style={{textAlign: 'left'}}><strong>Baro.altitude:</strong> {selectedAirplane.alt_baro || "N/A"} ft <span>{getBaroRateIcon(selectedAirplane.baro_rate)}</span></p>
-              <p style={{textAlign: 'left'}}><strong>Vert.Rate:</strong> {selectedAirplane.baro_rate || "N/A"} ft/min</p>
-              <p style={{textAlign: 'left'}}><strong>Track:</strong> {selectedAirplane.track || "N/A"}º</p>
-              <p style={{textAlign: 'left'}}><strong>Pos.:</strong> {selectedAirplane.lat && selectedAirplane.lon
-                  ? `Latitude: ${selectedAirplane.lat.toFixed(2)}º, Longitude: ${selectedAirplane.lon.toFixed(2)}º`
-                  : "N/A"
-              } </p>
-              <p><strong>Distance:</strong> {selectedAirplane.modea || "N/A"}</p>
+        {/* Left Sidebar */}
+        {sidebarOpen && (
+            <div style={{
+              position: 'fixed',
+              top: '0',
+              left: '0',
+              width: '200px',
+              height: '100%',
+              backgroundColor: '#313131',
+              boxShadow: '2px 0 5px rgba(0, 0, 0, 0.3)',
+              zIndex: 1000,
+              overflowY: 'auto'
+            }}>
+              {/* Imagem para fechar a sidebar */}
+              <img
+                  src="/close-settings.png"
+                  alt="Fechar Sidebar"
+                  onClick={closeSidebar}
+                  style={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: '15px',
+                    cursor: 'pointer',
+                    width: '20px',
+                    height: '20px',
+                    filter: 'invert(33%) sepia(69%) saturate(4683%) hue-rotate(24deg) brightness(97%) contrast(91%)' // Filtro para a cor #f1c496
+                  }}
+              />
 
-              <h2 style={{
-                backgroundColor: '#003f4b',
-                color: 'white',
-                marginBottom: '10px'
-              }}>SIGNAL</h2>
-              <p style={{textAlign: 'left'}}><strong>Source:</strong> {selectedAirplane.modec ? "ADS-B" : "N/A"}</p>
-              <p style={{textAlign: 'left'}}><strong>RSSI:</strong> {selectedAirplane.rssi || "N/A"} dBFS</p>
-              <p style={{textAlign: 'left'}}><strong>Msg. Rate:</strong> {selectedAirplane.messages || "N/A"}</p>
-              <p style={{textAlign: 'left'}}><strong>Messages:</strong> {selectedAirplane.messages || "N/A"}</p>
-              <p style={{textAlign: 'left'}}><strong>Last Pos.:</strong> {selectedAirplane.seen_pos || "N/A"} s</p>
-              <p style={{textAlign: 'left'}}><strong>Last Seen.:</strong> {selectedAirplane.seen || "N/A"} s</p>
+              {selectedAirplane && (
+                  <div>
+                    <p style={{textAlign: 'left'}}><strong>Callsign:</strong> {selectedAirplane.flight || "N/A"}</p>
+                    <p style={{textAlign: 'left'}}><strong>Hex:</strong> {selectedAirplane.hex}</p>
+                    <p style={{textAlign: 'left'}}><strong>Altitude:</strong> {selectedAirplane.alt_baro || "N/A"} ft
+                    </p>
+                    <p style={{textAlign: 'left'}}><strong>Velocidade:</strong> {selectedAirplane.gs || "N/A"} nós</p>
+                    {/*<p style={{textAlign: 'left'}}><strong>ICAO:</strong> {selectedAirplane.icao || "N/A"} </p>*/}
 
-              <h2 style={{
-                backgroundColor: '#003f4b',
-                color: 'white',
-                width: '100%',
-                marginBottom: '10px'
-              }}>FMS SEL</h2>
-              <p style={{textAlign: 'left'}}><strong>Sel. Alt.:</strong> {selectedAirplane.nav_altitude_mcp || "N/A"} ft</p>
-              <p style={{textAlign: 'left'}}><strong>Sel. Head.:</strong> {selectedAirplane.mag_heading || "N/A"}º</p>
+                    <h3 style={{
+                      backgroundColor: '#003f4b',
+                      color: 'white',
+                      marginBottom: '10px'
+                    }}>SPATIAL</h3>
+                    <p style={{textAlign: 'left'}}><strong>Groundspeed:</strong> {selectedAirplane.gs || "N/A"} kt</p>
+                    <p style={{textAlign: 'left'}}>
+                      <strong>Baro.altitude:</strong> {selectedAirplane.alt_baro || "N/A"} ft <span>{getBaroRateIcon(selectedAirplane.baro_rate)}</span>
+                    </p>
+                    <p style={{textAlign: 'left'}}>
+                      <strong>Vert.Rate:</strong> {selectedAirplane.baro_rate || "N/A"} ft/min</p>
+                    <p style={{textAlign: 'left'}}><strong>Track:</strong> {selectedAirplane.track || "N/A"}º</p>
+                    <p style={{textAlign: 'left'}}><strong>Pos.:</strong> {selectedAirplane.lat && selectedAirplane.lon
+                        ? `Latitude: ${selectedAirplane.lat.toFixed(2)}º, Longitude: ${selectedAirplane.lon.toFixed(2)}º`
+                        : "N/A"
+                    } </p>
+                    <p><strong>Distance:</strong> {selectedAirplane.modea || "N/A"}</p>
 
-              <h2 style={{
-                backgroundColor: '#003f4b',
-                color: 'white',
-                width: '100%',
-                marginBottom: '10px'
-              }}>WIND</h2>
-              <p style={{textAlign: 'left'}}><strong>Speed:</strong> {selectedAirplane.gs || "N/A"} kt</p>
-              <p style={{textAlign: 'left'}}><strong>Direction (from):</strong> {selectedAirplane.track || "N/A"}º</p>
-              <p style={{textAlign: 'left'}}><strong>TAT / OAT:</strong> {selectedAirplane.messages || "N/A"}</p> {/* Not available in provided JSON, replaced with 'messages' for now */}
+                    <h2 style={{
+                      backgroundColor: '#003f4b',
+                      color: 'white',
+                      marginBottom: '10px'
+                    }}>SIGNAL</h2>
+                    <p style={{textAlign: 'left'}}><strong>Source:</strong> {selectedAirplane.modec ? "ADS-B" : "N/A"}
+                    </p>
+                    <p style={{textAlign: 'left'}}><strong>RSSI:</strong> {selectedAirplane.rssi || "N/A"} dBFS</p>
+                    <p style={{textAlign: 'left'}}><strong>Msg. Rate:</strong> {selectedAirplane.messages || "N/A"}</p>
+                    <p style={{textAlign: 'left'}}><strong>Messages:</strong> {selectedAirplane.messages || "N/A"}</p>
+                    <p style={{textAlign: 'left'}}><strong>Last Pos.:</strong> {selectedAirplane.seen_pos || "N/A"} s
+                    </p>
+                    <p style={{textAlign: 'left'}}><strong>Last Seen.:</strong> {selectedAirplane.seen || "N/A"} s</p>
 
-              <h2 style={{
-                backgroundColor: '#003f4b',
-                color: 'white',
-                width: '100%',
-                marginBottom: '10px'
-              }}>Speed</h2>
-              <p style={{textAlign: 'left'}}><strong>Ground:</strong> {selectedAirplane.gs || "N/A"} kt</p>
-              <p style={{textAlign: 'left'}}><strong>True:</strong> {selectedAirplane.tas || "N/A"} kt</p>
-              <p style={{textAlign: 'left'}}><strong>Indicated:</strong> {selectedAirplane.ias || "N/A"} kt</p>
-              <p style={{textAlign: 'left'}}><strong>Mach:</strong> {selectedAirplane.mach || "N/A"}</p>
+                    <h2 style={{
+                      backgroundColor: '#003f4b',
+                      color: 'white',
+                      width: '100%',
+                      marginBottom: '10px'
+                    }}>FMS SEL</h2>
+                    <p style={{textAlign: 'left'}}><strong>Sel.
+                      Alt.:</strong> {selectedAirplane.nav_altitude_mcp || "N/A"} ft</p>
+                    <p style={{textAlign: 'left'}}><strong>Sel. Head.:</strong> {selectedAirplane.mag_heading || "N/A"}º
+                    </p>
 
-              <h2 style={{
-                backgroundColor: '#003f4b',
-                color: 'white',
-                width: '100%',
-                marginBottom: '10px'
-              }}>Altitude</h2>
-              <p style={{textAlign: 'left'}}><strong>Barometric:</strong> {selectedAirplane.alt_baro || "N/A"} ft <span>{getBaroRateIcon(selectedAirplane.baro_rate)}</span></p>
-              <p style={{textAlign: 'left'}}><strong>Baro.Rate:</strong> {selectedAirplane.baro_rate || "N/A"} ft/min</p>
-              <p style={{textAlign: 'left'}}><strong>Geom.WGS84:</strong> {selectedAirplane.alt_geom || "N/A"} ft <span>{getBaroRateIcon(selectedAirplane.baro_rate)}</span></p>
-              <p style={{textAlign: 'left'}}><strong>Geom.Rate:</strong> {selectedAirplane.geom_rate || "N/A"} ft/min</p>
-              <p style={{textAlign: 'left'}}><strong>QNH:</strong> {selectedAirplane.nav_qnh || "N/A"} hPa</p>
+                    <h2 style={{
+                      backgroundColor: '#003f4b',
+                      color: 'white',
+                      width: '100%',
+                      marginBottom: '10px'
+                    }}>WIND</h2>
+                    <p style={{textAlign: 'left'}}><strong>Speed:</strong> {selectedAirplane.gs || "N/A"} kt</p>
+                    <p style={{textAlign: 'left'}}><strong>Direction (from):</strong> {selectedAirplane.track || "N/A"}º
+                    </p>
+                    <p style={{textAlign: 'left'}}><strong>TAT / OAT:</strong> {selectedAirplane.messages || "N/A"}
+                    </p> {/* Not available in provided JSON, replaced with 'messages' for now */}
 
-              <h2 style={{
-                backgroundColor: '#003f4b',
-                color: 'white',
-                width: '100%',
-                marginBottom: '10px'
-              }}>Direction</h2>
-              <p style={{textAlign: 'left'}}><strong>Ground Track:</strong> {selectedAirplane.track || "N/A"}º</p>
-              <p style={{textAlign: 'left'}}><strong>True Heading:</strong> {selectedAirplane.true_heading || "N/A"}º</p>
-              <p style={{textAlign: 'left'}}><strong>Magnetic Heading:</strong> {selectedAirplane.mag_heading || "N/A"}º</p>
-              <p style={{textAlign: 'left'}}><strong>Magnetic Decl.:</strong> {selectedAirplane.mag_declination || "N/A"}º</p>
-              <p style={{textAlign: 'left'}}><strong>Track Rate:</strong> {selectedAirplane.track_rate || "N/A"}</p>
-              <p style={{textAlign: 'left'}}><strong>Roll:</strong> {selectedAirplane.roll || "N/A"}</p>
+                    <h2 style={{
+                      backgroundColor: '#003f4b',
+                      color: 'white',
+                      width: '100%',
+                      marginBottom: '10px'
+                    }}>Speed</h2>
+                    <p style={{textAlign: 'left'}}><strong>Ground:</strong> {selectedAirplane.gs || "N/A"} kt</p>
+                    <p style={{textAlign: 'left'}}><strong>True:</strong> {selectedAirplane.tas || "N/A"} kt</p>
+                    <p style={{textAlign: 'left'}}><strong>Indicated:</strong> {selectedAirplane.ias || "N/A"} kt</p>
+                    <p style={{textAlign: 'left'}}><strong>Mach:</strong> {selectedAirplane.mach || "N/A"}</p>
 
-              <h2 style={{
-                backgroundColor: '#003f4b',
-                color: 'white',
-                width: '100%',
-                marginBottom: '10px'
-              }}>Stuff</h2>
-              <p style={{textAlign: 'left'}}><strong>Nav. Modes:</strong> {selectedAirplane.modec ? "ADS-B" : "N/A"}</p>
-              <p style={{textAlign: 'left'}}><strong>ADS-B Ver.:</strong> {selectedAirplane.version || "N/A"}</p>
-              <p style={{textAlign: 'left'}}><strong>Category:</strong> {selectedAirplane.category || "N/A"}</p>
+                    <h2 style={{
+                      backgroundColor: '#003f4b',
+                      color: 'white',
+                      width: '100%',
+                      marginBottom: '10px'
+                    }}>Altitude</h2>
+                    <p style={{textAlign: 'left'}}>
+                      <strong>Barometric:</strong> {selectedAirplane.alt_baro || "N/A"} ft <span>{getBaroRateIcon(selectedAirplane.baro_rate)}</span>
+                    </p>
+                    <p style={{textAlign: 'left'}}>
+                      <strong>Baro.Rate:</strong> {selectedAirplane.baro_rate || "N/A"} ft/min</p>
+                    <p style={{textAlign: 'left'}}>
+                      <strong>Geom.WGS84:</strong> {selectedAirplane.alt_geom || "N/A"} ft <span>{getBaroRateIcon(selectedAirplane.baro_rate)}</span>
+                    </p>
+                    <p style={{textAlign: 'left'}}>
+                      <strong>Geom.Rate:</strong> {selectedAirplane.geom_rate || "N/A"} ft/min</p>
+                    <p style={{textAlign: 'left'}}><strong>QNH:</strong> {selectedAirplane.nav_qnh || "N/A"} hPa</p>
 
-              <p>Learn more about Mode S data type by hovering over each data label. </p>
+                    <h2 style={{
+                      backgroundColor: '#003f4b',
+                      color: 'white',
+                      width: '100%',
+                      marginBottom: '10px'
+                    }}>Direction</h2>
+                    <p style={{textAlign: 'left'}}><strong>Ground Track:</strong> {selectedAirplane.track || "N/A"}º</p>
+                    <p style={{textAlign: 'left'}}><strong>True
+                      Heading:</strong> {selectedAirplane.true_heading || "N/A"}º</p>
+                    <p style={{textAlign: 'left'}}><strong>Magnetic
+                      Heading:</strong> {selectedAirplane.mag_heading || "N/A"}º</p>
+                    <p style={{textAlign: 'left'}}><strong>Magnetic
+                      Decl.:</strong> {selectedAirplane.mag_declination || "N/A"}º</p>
+                    <p style={{textAlign: 'left'}}><strong>Track Rate:</strong> {selectedAirplane.track_rate || "N/A"}
+                    </p>
+                    <p style={{textAlign: 'left'}}><strong>Roll:</strong> {selectedAirplane.roll || "N/A"}</p>
 
+                    <h2 style={{
+                      backgroundColor: '#003f4b',
+                      color: 'white',
+                      width: '100%',
+                      marginBottom: '10px'
+                    }}>Stuff</h2>
+                    <p style={{textAlign: 'left'}}><strong>Nav.
+                      Modes:</strong> {selectedAirplane.modec ? "ADS-B" : "N/A"}</p>
+                    <p style={{textAlign: 'left'}}><strong>ADS-B Ver.:</strong> {selectedAirplane.version || "N/A"}</p>
+                    <p style={{textAlign: 'left'}}><strong>Category:</strong> {selectedAirplane.category || "N/A"}</p>
 
+                  </div>
+              )}
             </div>
         )}
-      </div>
-    )}
 
-    {/* Sidebar com informações da tabela ao colocar o zIndex superior ao da imagem da alt
+        {/* Sidebar com informações da tabela ao colocar o zIndex superior ao da imagem da alt
     temos uma sidebar que passa por cima da imagem*/}
-    <Sidebar width={sidebarWidth} style={{zIndex: 1500}} >
-      <ResizeButtonComponent handleMouseDown={handleMouseDown}/>
+        <Sidebar width={sidebarWidth} style={{zIndex: 1500}}>
+          <ResizeButtonComponent handleMouseDown={handleMouseDown}/>
 
-      <h2>Informações dos Aviões</h2>
-      <Table>
-        <thead>
-          <tr>
-            <th></th>
-            <th>Callsign</th>
-            <th>Alt.(ft)</th>
-            <th>Spd.(kt)</th>
-            <th>Coordenadas</th>
-          </tr>
-        </thead>
-        <tbody>
-          {airplanes.map((airplane) => {
-            const { country, flag } = getCountryByHex(airplane.hex);
-            return (
-              <tr key={airplane.hex} onClick={() => openSidebar(airplane)}>
-                <td>
-                  {flag ? <img src={flag} alt={country} style={{ width: "20px", height: "15px" }} /> : "N/A"}
-                </td>
-                <td>{airplane.flight || "N/A"}</td>
-                <td>{airplane.alt_baro || "N/A"}</td>
-                <td>{airplane.gs || "N/A"}</td>
-                <td>
-                  {airplane.lat && airplane.lon
-                    ? `Latitude: ${airplane.lat.toFixed(2)}º, Longitude: ${airplane.lon.toFixed(2)}º`
-                    : "N/A"}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </Table>
-    </Sidebar>
+          <h2>Informações dos Aviões</h2>
 
-    <MapContainer
-        center={[40, -5]}
-        zoom={6}
-        style={{height: "100vh", width: "100vw"}}
-        zoomControl={false}
-    >
-      <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+          <Table>
+            <thead>
+            <tr>
+              <th></th>
+              <th>Callsign</th>
+              <th>Alt.(ft)</th>
+              <th>Spd.(kt)</th>
+              <th>Coordenadas</th>
+            </tr>
+            </thead>
+            <tbody>
+            {airplanes.map((airplane) => {
+              const {country, flag} = getCountryByHex(airplane.hex);
+              return (
+                  <tr key={airplane.hex} onClick={() => openSidebar(airplane)}>
+                    <td>
+                      {flag ? <img src={flag} alt={country} style={{width: "20px", height: "15px"}}/> : "N/A"}
+                    </td>
+                    <td>{airplane.flight || "N/A"}</td>
+                    <td>{airplane.alt_baro || "N/A"}</td>
+                    <td>{airplane.gs || "N/A"}</td>
+                    <td>
+                      {airplane.lat && airplane.lon
+                          ? `Latitude: ${airplane.lat.toFixed(2)}º, Longitude: ${airplane.lon.toFixed(2)}º`
+                          : "N/A"}
+                    </td>
+                  </tr>
+              );
+            })}
+            </tbody>
+          </Table>
+        </Sidebar>
 
-      {/* Adicionando a antena com popup */}
-      <Marker
-          key="Antena Rua Nove de Abril"
-          position={[41.171060, -8.616363]}
-          icon={L.icon({
-            iconUrl: "/signal-tower.png", // ícone da antena
-            iconSize: [40, 40],
-            iconAnchor: [20, 40],
-            popupAnchor: [0, -40],
-          })}
-      >
-        <Popup>
-          <strong>Antena</strong>
-        </Popup>
-      </Marker>
+        <MapContainer
+            center={[40, -5]}
+            zoom={6}
+            style={{height: "100vh", width: "100vw"}}
+            zoomControl={false}
+        >
+          <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
 
-      {/* Circulos de 100, 150 e 200 nmi ao redor da antena */}
-      <Circle
-          center={[41.171060, -8.616363]}
-          radius={100 * 1852} // 100 nmi em metros
-          color="black"
-          weight={2}
-          opacity={0.3}
-          fillColor="transparent"
-          fillOpacity={0}
-      />
-      <Circle
-          center={[41.171060, -8.616363]}
-          radius={150 * 1852} // 150 nmi em metros
-          color="black"
-          weight={2}
-          opacity={0.3}
-          fillColor="transparent"
-          fillOpacity={0}
-      />
-      <Circle
-          center={[41.171060, -8.616363]}
-          radius={200 * 1852} // 200 nmi em metros
-          color="black"
-          weight={2}
-          opacity={0.3}
-          fillColor="transparent"
-          fillOpacity={0}
-      />
-
-      {/* Adicionando localizações de radares */}
-      {radars.map((radar) => (
+          {/* Adicionando a antena com popup */}
           <Marker
-              key={radar.name}
-              position={[radar.lat, radar.lon]}
-              icon={radarIcon()}
+              key="Antena Rua Nove de Abril"
+              position={[41.171060, -8.616363]}
+              icon={L.icon({
+                iconUrl: "/signal-tower.png", // ícone da antena
+                iconSize: [40, 40],
+                iconAnchor: [20, 40],
+                popupAnchor: [0, -40],
+              })}
           >
             <Popup>
-              <strong>{radar.name}</strong><br/>
-              Localização de Radar
+              <strong>Antena</strong>
             </Popup>
           </Marker>
-      ))}
 
-      {/* aeroportos */}
-      {airports.map((airport) => (
-          <Marker
-              key={airport.name}
-              position={[airport.lat, airport.lon]}
-              icon={airportIcon(airport.type)}
-          >
-            <Popup>
-              <strong>{airport.name}</strong><br/>
-              <strong>ICAO:</strong> {airport.icao} <br/>
-              <strong>IATA:</strong> {airport.iata} <br/>
-              <strong>Tipo:</strong> {airport.type === "airport" ? "Aeroporto" : airport.type === "aerodrome" ? "Aeródromo" : "Base Militar"}
-            </Popup>
-          </Marker>
-      ))}
+          {/* Circulos de 100, 150 e 200 nmi ao redor da antena */}
+          <Circle
+              center={[41.171060, -8.616363]}
+              radius={100 * 1852} // 100 nmi em metros
+              color="black"
+              weight={2}
+              opacity={0.3}
+              fillColor="transparent"
+              fillOpacity={0}
+          />
+          <Circle
+              center={[41.171060, -8.616363]}
+              radius={150 * 1852} // 150 nmi em metros
+              color="black"
+              weight={2}
+              opacity={0.3}
+              fillColor="transparent"
+              fillOpacity={0}
+          />
+          <Circle
+              center={[41.171060, -8.616363]}
+              radius={200 * 1852} // 200 nmi em metros
+              color="black"
+              weight={2}
+              opacity={0.3}
+              fillColor="transparent"
+              fillOpacity={0}
+          />
 
-      {/* aviões no mapa */}
-      {airplanes.map((airplane) => (
-          airplane.lat && airplane.lon && (
+          {/* Adicionando localizações de radares */}
+          {radars.map((radar) => (
               <Marker
-                  key={airplane.hex}
-                  position={[airplane.lat, airplane.lon]}
-                  icon={airplaneIcon(airplane.alt_baro)}
-                  rotationAngle={airplane.track || 0}
-
-                  rotationOrigin="center"
-                  eventHandlers={{
-                    click: () => handleAirplaneClick(airplane), // Ao clicar no avião, abre a leftSidebar
-                  }}
+                  key={radar.name}
+                  position={[radar.lat, radar.lon]}
+                  icon={radarIcon()}
               >
                 <Popup>
-                  <strong>Voo:</strong> {airplane.flight || "N/A"}<br/>
-                  <strong>Hex:</strong> {airplane.hex}<br/>
-                  <strong>Altitude:</strong> {airplane.alt_baro || "N/A"} ft <br/>
-                  <strong>Velocidade:</strong> {airplane.gs || "N/A"} nós<br/>
-                  <strong>RSSI:</strong> {airplane.rssi || "N/A"} dBFS<br/>
-                  <strong>Last Pos.:</strong> {airplane.seen_pos || "N/A"}s<br/>
-                  <strong>Last Seen.:</strong> {airplane.seen || "N/A"}s<br/>
-
+                  <strong>{radar.name}</strong><br/>
+                  Localização de Radar
                 </Popup>
               </Marker>
-          )
-      ))}
+          ))}
 
-      {/* Traçado das rotas com cores baseadas na altitude */}
-        {Object.entries(airplanePaths).map(([hex, path]) => {
-          if (path.length < 2) return null;
+          {/* aeroportos */}
+          {airports.map((airport) => (
+              <Marker
+                  key={airport.name}
+                  position={[airport.lat, airport.lon]}
+                  icon={airportIcon(airport.type)}
+              >
+                <Popup>
+                  <strong>{airport.name}</strong><br/>
+                  <strong>ICAO:</strong> {airport.icao} <br/>
+                  <strong>IATA:</strong> {airport.iata} <br/>
+                  <strong>Tipo:</strong> {airport.type === "airport" ? "Aeroporto" : airport.type === "aerodrome" ? "Aeródromo" : "Base Militar"}
+                </Popup>
+              </Marker>
+          ))}
 
-          // Criar segmentos de linha para cada par de pontos
-          return path.slice(1).map((point, index) => {
-            const prevPoint = path[index];
-            const positions = [
-              prevPoint.position,
-              point.position
-            ];
+          {/* aviões no mapa */}
+          {getFilteredAirplanes().map((airplane) => (
+              airplane.lat && airplane.lon && (
+                  <Marker
+                      key={airplane.hex}
+                      position={[airplane.lat, airplane.lon]}
+                      icon={airplaneIcon(airplane.alt_baro, airplane.category, airplane.track)}
+                      eventHandlers={{
+                        click: () => handleAirplaneClick(airplane), // Ao clicar no avião, abre a leftSidebar
+                      }}
+                  >
+                    <Popup>
+                      <strong>Voo:</strong> {airplane.flight || "N/A"}<br/>
+                      <strong>Hex:</strong> {airplane.hex}<br/>
+                      <strong>Altitude:</strong> {airplane.alt_baro || "N/A"} ft <br/>
+                      <strong>Velocidade:</strong> {airplane.gs || "N/A"} nós<br/>
+                      <strong>RSSI:</strong> {airplane.rssi || "N/A"} dBFS<br/>
+                      <strong>Last Pos.:</strong> {airplane.seen_pos || "N/A"}s<br/>
+                      <strong>Last Seen.:</strong> {airplane.seen || "N/A"}s<br/>
+                    </Popup>
+                  </Marker>
+              )
+          ))}
 
-            return (
-              <Polyline
-                key={`${hex}-${index}`}
-                positions={positions}
-                color={getColorByAltitude(point.altitude)}
-                weight={selectedAirplane?.hex === hex ? 3 : 2}
-                opacity={selectedAirplane?.hex === hex ? 0.8 : 0.3}
-              />
-            );
-          });
-        })}
-    </MapContainer>
-    {/* Imagem da altitude que está no rodapé */}
-      <div style={{
-      position: 'fixed',
-      bottom: '20px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      zIndex:1200, marginLeft: '-50px'
-    }}>
-      <img src="/Altitude.svg" alt="Altitude Image" style={{ width: '800px', height: 'auto', pointerEvents: 'none'}} />
-    </div>
-  </div>
+          {/* Traçado das rotas com cores baseadas na altitude */}
+          {Object.entries(airplanePaths).map(([hex, path]) => {
+            if (path.length < 2) return null;
+
+            // Criar segmentos de linha para cada par de pontos
+            return path.slice(1).map((point, index) => {
+              const prevPoint = path[index];
+              const positions = [
+                prevPoint.position,
+                point.position
+              ];
+
+              return (
+                  <Polyline
+                      key={`${hex}-${index}`}
+                      positions={positions}
+                      color={getColorByAltitude(point.altitude)}
+                      weight={selectedAirplane?.hex === hex ? 3 : 2} //mudar isto para o tamanho da linha
+                      opacity={selectedAirplane?.hex === hex ? 1.0 : 0.7} //mudar isto para a cor ficar mais escura ou mais clara
+                  />
+              );
+            });
+          })}
+        </MapContainer>
+        {/* Imagem da altitude que está no rodapé */}
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1200, marginLeft: '-50px'
+        }}>
+          <img src="/Altitude.svg" alt="Altitude Image"
+               style={{width: '800px', height: 'auto', pointerEvents: 'none'}}/>
+        </div>
+      </div>
   );
 }
+
 
 export default App;
