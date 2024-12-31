@@ -13,14 +13,6 @@ import React from 'react';
 import { Loader } from './Loader.jsx';
 import { getCountryByHex } from './icaoCountry.jsx';
 
-const ResizeButtonComponent = ({ handleMouseDown }) => {
-  return (
-    <ResizeImage onMouseDown={handleMouseDown}>
-      <img src="/toggle-sidebar-width.png" alt="sidebarToggle" />
-    </ResizeImage>
-  );
-};
-
 function App() {
   const [airplanes, setAirplanes] = useState([]);
   const [airplanePaths, setAirplanePaths] = useState({});
@@ -28,6 +20,15 @@ function App() {
   const [sidebarWidth, setSidebarWidth] = useState(300); // Estado para largura do sidebar
   const [selectedAirplane, setSelectedAirplane] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false); // Para controlar a visibilidade da sidebar
+
+
+  const ResizeButtonComponent = ({ handleMouseDown }) => {
+  return (
+    <ResizeImage onMouseDown={handleMouseDown}>
+      <img src="/toggle-sidebar-width.png" alt="sidebarToggle" />
+    </ResizeImage>
+  );
+};
 
   const handleAirplaneClick = (airplane) => {
     setSelectedAirplane(airplane);
@@ -45,19 +46,9 @@ const openSidebar = (airplane) => {
   setSidebarOpen(true);
 };
 
- // Atualiza os dados do avião selecionado a cada mudança na lista de aviões
-  useEffect(() => {
-    if (selectedAirplane) {
-      const updatedAirplane = airplanes.find(
-        (airplane) => airplane.hex === selectedAirplane.hex
-      );
-      setSelectedAirplane(updatedAirplane || null);
-    }
-  }, [airplanes]);
-
   useEffect(() => {
     // Mostra o loader
-    const timeout = setTimeout(() => setIsLoading(false), 2000);
+    const timeout = setTimeout(() => setIsLoading(false), 1000);
 
     return () => clearTimeout(timeout);
   }, []);
@@ -136,12 +127,20 @@ const openSidebar = (airplane) => {
     });
   };
 
-  const airplaneIcon = () => {
-  return L.icon({
-    iconUrl: "/A3.png",
+const airplaneIcon = (altitude, category, track) => {
+  const getIconUrl = (category) => {
+    const validCategories = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'B0', 'B1'];
+    return validCategories.includes(category)
+      ? `/${category}.png`
+      : '/A3.png';
+  };
+
+  return L.divIcon({
+    html: `<img src="${getIconUrl(category)}" style="width: 30px; height: 30px; transform: rotate(${track || 0}deg);">`,
+    className: 'airplane-icon',
     iconSize: [30, 30],
     iconAnchor: [15, 15],
-    popupAnchor: [0, -15],
+    popupAnchor: [0, -15]
   });
 };
 
@@ -210,6 +209,8 @@ const openSidebar = (airplane) => {
     e.preventDefault();
   };
 
+
+
   return (
   <div>
     {/* Left Sidebar */}
@@ -247,6 +248,7 @@ const openSidebar = (airplane) => {
               <p style={{textAlign: 'left'}}><strong>Hex:</strong> {selectedAirplane.hex}</p>
               <p style={{textAlign: 'left'}}><strong>Altitude:</strong> {selectedAirplane.alt_baro || "N/A"} ft</p>
               <p style={{textAlign: 'left'}}><strong>Velocidade:</strong> {selectedAirplane.gs || "N/A"} nós</p>
+              {/*<p style={{textAlign: 'left'}}><strong>ICAO:</strong> {selectedAirplane.icao || "N/A"} </p>*/}
 
               <h3 style={{
                 backgroundColor: '#003f4b',
@@ -340,9 +342,6 @@ const openSidebar = (airplane) => {
               <p style={{textAlign: 'left'}}><strong>ADS-B Ver.:</strong> {selectedAirplane.version || "N/A"}</p>
               <p style={{textAlign: 'left'}}><strong>Category:</strong> {selectedAirplane.category || "N/A"}</p>
 
-              <p>Learn more about Mode S data type by hovering over each data label. </p>
-
-
             </div>
         )}
       </div>
@@ -350,39 +349,40 @@ const openSidebar = (airplane) => {
 
     {/* Sidebar com informações da tabela ao colocar o zIndex superior ao da imagem da alt
     temos uma sidebar que passa por cima da imagem*/}
-    <Sidebar width={sidebarWidth} style={{zIndex: 1500}} >
+    <Sidebar width={sidebarWidth} style={{zIndex: 1500}}>
       <ResizeButtonComponent handleMouseDown={handleMouseDown}/>
 
       <h2>Informações dos Aviões</h2>
+
       <Table>
         <thead>
-          <tr>
-            <th></th>
-            <th>Callsign</th>
-            <th>Alt.(ft)</th>
-            <th>Spd.(kt)</th>
-            <th>Coordenadas</th>
-          </tr>
+        <tr>
+          <th></th>
+          <th>Callsign</th>
+          <th>Alt.(ft)</th>
+          <th>Spd.(kt)</th>
+          <th>Coordenadas</th>
+        </tr>
         </thead>
         <tbody>
-          {airplanes.map((airplane) => {
-            const { country, flag } = getCountryByHex(airplane.hex);
-            return (
+        {airplanes.map((airplane) => {
+          const {country, flag} = getCountryByHex(airplane.hex);
+          return (
               <tr key={airplane.hex} onClick={() => openSidebar(airplane)}>
                 <td>
-                  {flag ? <img src={flag} alt={country} style={{ width: "20px", height: "15px" }} /> : "N/A"}
+                  {flag ? <img src={flag} alt={country} style={{width: "20px", height: "15px"}}/> : "N/A"}
                 </td>
                 <td>{airplane.flight || "N/A"}</td>
                 <td>{airplane.alt_baro || "N/A"}</td>
                 <td>{airplane.gs || "N/A"}</td>
                 <td>
                   {airplane.lat && airplane.lon
-                    ? `Latitude: ${airplane.lat.toFixed(2)}º, Longitude: ${airplane.lon.toFixed(2)}º`
-                    : "N/A"}
+                      ? `Latitude: ${airplane.lat.toFixed(2)}º, Longitude: ${airplane.lon.toFixed(2)}º`
+                      : "N/A"}
                 </td>
               </tr>
-            );
-          })}
+          );
+        })}
         </tbody>
       </Table>
     </Sidebar>
@@ -478,10 +478,7 @@ const openSidebar = (airplane) => {
               <Marker
                   key={airplane.hex}
                   position={[airplane.lat, airplane.lon]}
-                  icon={airplaneIcon(airplane.alt_baro)}
-                  rotationAngle={airplane.track || 0}
-
-                  rotationOrigin="center"
+                  icon={airplaneIcon(airplane.alt_baro, airplane.category, airplane.track)}
                   eventHandlers={{
                     click: () => handleAirplaneClick(airplane), // Ao clicar no avião, abre a leftSidebar
                   }}
@@ -494,7 +491,6 @@ const openSidebar = (airplane) => {
                   <strong>RSSI:</strong> {airplane.rssi || "N/A"} dBFS<br/>
                   <strong>Last Pos.:</strong> {airplane.seen_pos || "N/A"}s<br/>
                   <strong>Last Seen.:</strong> {airplane.seen || "N/A"}s<br/>
-
                 </Popup>
               </Marker>
           )
@@ -517,8 +513,8 @@ const openSidebar = (airplane) => {
                 key={`${hex}-${index}`}
                 positions={positions}
                 color={getColorByAltitude(point.altitude)}
-                weight={selectedAirplane?.hex === hex ? 3 : 2}
-                opacity={selectedAirplane?.hex === hex ? 0.8 : 0.3}
+                weight={selectedAirplane?.hex === hex ? 3 : 2} //mudar isto para o tamanho da linha
+                opacity={selectedAirplane?.hex === hex ? 1.0 : 0.7} //mudar isto para a cor ficar mais escura ou mais clara
               />
             );
           });
@@ -537,5 +533,6 @@ const openSidebar = (airplane) => {
   </div>
   );
 }
+
 
 export default App;
